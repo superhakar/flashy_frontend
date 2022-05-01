@@ -21,6 +21,14 @@ import axios from "../common/AxiosConfig";
 import { useDispatch } from "react-redux";
 import { userLoad } from "../services/AuthServices";
 import { useHistory } from "react-router-dom"
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import Slide from "@mui/material/Slide";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 export const Decks = () => {
   const INITIAL_OPTIONS = [
@@ -36,6 +44,9 @@ export const Decks = () => {
   const [open, setOpen] = React.useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
   const [name, setName] = useState("");
+  const [readOpen, setReadOpen] = useState(false);
+  const [currentCardId,setCurrentCardId] = useState(0);
+  const [currentDeckId, setCurrentDeckId] = useState(-1);
 
 
 const handleSubmit = () => {
@@ -65,12 +76,18 @@ const handleSubmit = () => {
   const handleClose = () => {
     setOpen(false);
   };
+  const handleCloseRead = () => {
+    setReadOpen(false);
+  };
 
   return (
     <>
       <div style={{ backgroundColor: "#E9D5DA" }}>
+        <Button onClick={() => history.push("/home")} style={{ float: "left" }}>
+          <ArrowBackIcon style={{ color: "#362062", fontSize: "8vh" }} />
+        </Button>
         <div className="row" style={{ width: "80%", marginLeft: "10%" }}>
-          {authState.decks.map((d,ind) => {
+          {authState.decks.map((d, ind) => {
             return (
               <div className="col-4" style={{ padding: "20px" }}>
                 <Paper
@@ -127,7 +144,16 @@ const handleSubmit = () => {
                               flexDirection: "row",
                             }}
                           >
-                            <Button variant="contained">Read</Button>
+                            <Button
+                              variant="contained"
+                              onClick={() => {
+                                setReadOpen(true);
+                                setCurrentDeckId(ind);
+                                setCurrentCardId(0);
+                              }}
+                            >
+                              Read
+                            </Button>
                             <Button variant="outlined">Read & Quiz</Button>
                           </div>
                         </div>
@@ -182,7 +208,7 @@ const handleSubmit = () => {
         <DialogTitle>Create Deck</DialogTitle>
         <DialogContent
           style={{
-            height: "40vh",
+            height: "50vh",
             maxHeight: "80vh",
           }}
         >
@@ -193,7 +219,7 @@ const handleSubmit = () => {
             label="Deck Name"
             fullWidth
             value={name}
-            onChange={(e)=>setName(e.target.value)}
+            onChange={(e) => setName(e.target.value)}
             variant="standard"
           />
           <Typography style={{ marginTop: "10px", marginBottom: "10px" }}>
@@ -212,6 +238,64 @@ const handleSubmit = () => {
           <Button onClick={handleSubmit}>Create</Button>
         </DialogActions>
       </Dialog>
+      {currentDeckId !== -1 && (
+        <Dialog
+          open={readOpen}
+          TransitionComponent={Transition}
+          onClose={handleCloseRead}
+          style={{
+            color: "#FCFFE7",
+          }}
+          fullWidth
+          maxWidth="md"
+        >
+          <div className="row" style={{ alignItems: "center" }}>
+            <div
+              className="col-1"
+              style={{ cursor: "pointer" }}
+              onClick={() => {
+                if (currentCardId > 0) setCurrentCardId(currentCardId - 1);
+              }}
+            >
+              <ChevronLeftIcon style={{ fontSize: "4em" }}></ChevronLeftIcon>
+            </div>
+            <div className="col-10">
+              <DialogContent
+                style={{
+                  height: "50vh",
+                  maxHeight: "80vh",
+                  textAlign: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Typography variant="h5">
+                  {authState.decks[currentDeckId].cards[currentCardId].content}
+                </Typography>
+                <Typography>
+                  Q)
+                  {" " +
+                    authState.decks[currentDeckId].cards[currentCardId]
+                      .question}
+                </Typography>
+                <Typography>
+                  A)
+                  {" " +
+                    authState.decks[currentDeckId].cards[currentCardId].answer}
+                </Typography>
+              </DialogContent>
+            </div>
+            <div
+              className="col-1"
+              style={{ cursor: "pointer" }}
+              onClick={() => {
+                if (currentCardId < authState.decks[currentDeckId].cards.length-1) setCurrentCardId(currentCardId + 1);
+              }}
+            >
+              <ChevronRightIcon style={{ fontSize: "4em" }}></ChevronRightIcon>
+            </div>
+          </div>
+        </Dialog>
+      )}
     </>
   );
 };

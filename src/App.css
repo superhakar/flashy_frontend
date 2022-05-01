@@ -59,3 +59,7 @@ li{
   display: flex !important;
   justify-content: flex-start !important;
 }
+
+.row{
+  --bs-gutter-x: 0 !important;
+}
