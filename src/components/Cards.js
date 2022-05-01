@@ -20,43 +20,38 @@ import { notifySuccess, notifyError } from "../actionCreators/NotifyActions";
 import axios from "../common/AxiosConfig";
 import { useDispatch } from "react-redux";
 import { userLoad } from "../services/AuthServices";
-import { useHistory } from "react-router-dom"
+import { useHistory } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
-export const Decks = () => {
-  const INITIAL_OPTIONS = [
-    { label: "SPE", value: "spe" },
-    { label: "HCAD", value: "hcad" },
-    { label: "ML", value: "ml" },
-    { label: "Placement", value: "placement" },
-    { label: "OS", value: "os" },
-  ];
-  let history = useHistory()
+export const Cards = () => {
+  let history = useHistory();
+  let { id } = useParams();
   const authState = useSelector((state) => state.AuthReducer);
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const [open, setOpen] = React.useState(false);
-  const [selectedTags, setSelectedTags] = useState([]);
-  const [name, setName] = useState("");
+  const [content, setContent] = useState("");
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
 
+  const handleSubmit = () => {
+    console.log("Add Card!!!!!!");
+    console.log({ content, question, answer, deckId: authState.decks[id]._id });
 
-const handleSubmit = () => {
-  console.log("Add Deck!!!!!!");
-  let tags = selectedTags.map((t) => t.label);
-  console.log(name, tags);
-
-  setOpen(false)
+    setOpen(false);
     axios
-      .post("/decks/addDeck", { name,tags })
+      .post("/cards/addCard", { content, question, answer, deckId: authState.decks[id]._id })
       .then((res) => {
         console.log(res);
-        dispatch(notifySuccess("Create Deck Successfully"));
-        dispatch(userLoad())
+        dispatch(notifySuccess("Created Card Successfully"));
+        dispatch(userLoad());
       })
       .catch((err) => {
         dispatch(notifyError(err.response.data.errors[0].msg));
       });
-  setName("")
-  setSelectedTags([])
-};
+      setContent("");
+      setQuestion("");
+      setAnswer("");
+  };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -68,14 +63,15 @@ const handleSubmit = () => {
 
   return (
     <>
+    {console.log(authState.decks)}
       <div style={{ backgroundColor: "#E9D5DA" }}>
         <div className="row" style={{ width: "80%", marginLeft: "10%" }}>
-          {authState.decks.map((d,ind) => {
+          {authState.decks[id] && authState.decks[id].cards.map((c) => {
             return (
               <div className="col-4" style={{ padding: "20px" }}>
                 <Paper
                   elevation={3}
-                  key={d._id}
+                  key={c._id}
                   style={{ backgroundColor: "#FCFFE7" }}
                 >
                   <Card variant="outlined">
@@ -90,17 +86,7 @@ const handleSubmit = () => {
                         }}
                       >
                         <Typography variant="h5" align="center">
-                          {d.name}
-                        </Typography>
-                        <Typography align="center">
-                          {d.tags.map((t) => {
-                            return (
-                              <span>
-                                <LocalOfferIcon style={{ color: "#363062" }} />
-                                {" " + t + " "}
-                              </span>
-                            );
-                          })}
+                          {c.question}
                         </Typography>
                         <div
                           style={{ display: "flex", flexDirection: "column" }}
@@ -112,23 +98,8 @@ const handleSubmit = () => {
                               flexDirection: "row",
                             }}
                           >
-                            <Button
-                              variant="contained"
-                              onClick={() => history.push("/cards/" + ind)}
-                            >
-                              View Cards
-                            </Button>
-                            <Button variant="outlined">Edit Deck</Button>
-                          </div>
-                          <div
-                            style={{
-                              padding: "5px",
-                              display: "flex",
-                              flexDirection: "row",
-                            }}
-                          >
-                            <Button variant="contained">Read</Button>
-                            <Button variant="outlined">Read & Quiz</Button>
+                            <Button variant="contained">View Full Card</Button>
+                            <Button variant="outlined">Edit Card</Button>
                           </div>
                         </div>
                       </CardContent>
@@ -179,7 +150,7 @@ const handleSubmit = () => {
         fullWidth
         maxWidth="xs"
       >
-        <DialogTitle>Create Deck</DialogTitle>
+        <DialogTitle>Create Card</DialogTitle>
         <DialogContent
           style={{
             height: "40vh",
@@ -189,22 +160,32 @@ const handleSubmit = () => {
           <TextField
             autoFocus
             margin="dense"
-            id="name"
-            label="Deck Name"
+            label="Content"
             fullWidth
-            value={name}
-            onChange={(e)=>setName(e.target.value)}
+            multiline
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
             variant="standard"
           />
-          <Typography style={{ marginTop: "10px", marginBottom: "10px" }}>
-            Select Tags:
-          </Typography>
-          <MultiSelect
-            options={INITIAL_OPTIONS}
-            value={selectedTags}
-            onChange={setSelectedTags}
-            labelledBy="Select Tags"
-            isCreatable={true}
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Question"
+            fullWidth
+            multiline
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            variant="standard"
+          />
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Answer"
+            fullWidth
+            multiline
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value)}
+            variant="standard"
           />
         </DialogContent>
         <DialogActions>

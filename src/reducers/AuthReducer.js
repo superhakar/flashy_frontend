@@ -11,13 +11,14 @@ import {
 const initialState = {
   username: "",
   decks: [],
+  currDeck: {},
   authStatus: "",
   registerStatus: "",
   authErrMsg: "",
 };
 
 export const AuthReducer = (state = initialState, action) => {
-  console.log(action)
+  console.log(action);
   switch (action.type) {
     case LOGIN_SUCCESS:
       return {
@@ -53,7 +54,7 @@ export const AuthReducer = (state = initialState, action) => {
       return {
         ...state,
         authStatus: "",
-      }
+      };
     default:
       return state;
   }

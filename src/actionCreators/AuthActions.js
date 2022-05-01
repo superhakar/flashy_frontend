@@ -4,7 +4,7 @@ import {
   SIGNUP_FAILURE,
   SIGNUP_SUCCESS,
   LOAD_USER_SUCCESS,
-  LOAD_USER_FAILURE,LOGOUT
+  LOAD_USER_FAILURE,LOGOUT,
 } from "../common/Constants";
 
 export const signupSuccess = () => {
@@ -23,6 +23,7 @@ export const loginSuccess = (userDetails) => {
         userDetails: userDetails
     }
 }
+
 export const loginFailure = (err) => ({
     type: LOGIN_FAILURE,
     err: err
@@ -43,4 +44,5 @@ export const loadUserFailure = (err) => ({
 export const logoutUser = () => ({
     type: LOGOUT
 })
+
 
