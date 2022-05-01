@@ -16,6 +16,10 @@ import plusLogo from "../Plus.png";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import Button from "@mui/material/Button";
 import { MultiSelect } from "react-multi-select-component";
+import { notifySuccess, notifyError } from "../actionCreators/NotifyActions";
+import axios from "../common/AxiosConfig";
+import { useDispatch } from "react-redux";
+import { userLoad } from "../services/AuthServices";
 
 export const Decks = () => {
   const INITIAL_OPTIONS = [
@@ -26,9 +30,29 @@ export const Decks = () => {
     { label: "OS", value: "os" },
   ];
   const authState = useSelector((state) => state.AuthReducer);
-
+  const dispatch = useDispatch()
   const [open, setOpen] = React.useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [name, setName] = useState("");
+
+
+const handleSubmit = () => {
+  console.log("Add Deck!!!!!!");
+  let tags = selectedTags.map((t) => t.label);
+  console.log(name, tags);
+
+  setOpen(false)
+    axios
+      .post("/decks/addDeck", { name,tags })
+      .then((res) => {
+        console.log(res);
+        dispatch(notifySuccess("Create Deck Successfully"));
+        dispatch(userLoad())
+      })
+      .catch((err) => {
+        dispatch(notifyError(err.response.data.errors[0].msg));
+      });
+};
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -131,6 +155,8 @@ export const Decks = () => {
             id="name"
             label="Deck Name"
             fullWidth
+            value={name}
+            onChange={(e)=>setName(e.target.value)}
             variant="standard"
           />
           <Typography style={{ marginTop: "10px", marginBottom: "10px" }}>
@@ -146,7 +172,7 @@ export const Decks = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Create</Button>
+          <Button onClick={handleSubmit}>Create</Button>
         </DialogActions>
       </Dialog>
     </>

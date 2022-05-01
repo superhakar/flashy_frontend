@@ -73,7 +73,7 @@ export const userLoad = (history) => {
         .get("/users/auth")
         .then((res) => {
           dispatch(loadUserSuccess(res.data));
-          history.push("/home");
+          if(history) history.push("/home");
         })
         .catch((err) => {
             console.log(err)

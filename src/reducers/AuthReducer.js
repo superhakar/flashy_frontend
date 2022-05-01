@@ -10,10 +10,7 @@ import {
 
 const initialState = {
   username: "",
-  decks: [
-    { name: "test 1", tags: ["tag1", "tag3"] },
-    { name: "test 2", tags: ["tag2"] },
-  ],
+  decks: [],
   authStatus: "",
   registerStatus: "",
   authErrMsg: "",
@@ -32,7 +29,7 @@ export const AuthReducer = (state = initialState, action) => {
         ...state,
         authStatus: "Success",
         username: action.userDetails.name,
-        // decks: action.userDetails.decks,
+        decks: action.userDetails.decks,
       };
     case LOGIN_FAILURE:
     case LOAD_USER_FAILURE:
