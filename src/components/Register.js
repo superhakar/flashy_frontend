@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState,useEffect } from "react";
 import {
   Grid,
   Paper,
@@ -7,8 +7,28 @@ import {
   Button,
 } from "@material-ui/core";
 import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
+import { useHistory } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { userSignup } from "../services/AuthServices";
+import { notifySuccess, notifyError } from "../actionCreators/NotifyActions";
+
+
 export const Register = () => {
+  let history = useHistory();
   const avatarStyle = { backgroundColor: "#363062" };
+  const [username,setUsername] = useState("")
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const dispatch = useDispatch();
+  const signup = (username,password,history) => userSignup(username,password,history)(dispatch);
+  const handleSubmit = () =>{
+      console.log("Register!!!!!!")
+    if(password === confirmPassword)
+    signup(username,password,history);
+    else dispatch(notifyError("Passwords must match"))
+  }
+  useEffect(() => {}, []);
+
   return (
     <Grid className="page">
       <Paper
@@ -32,6 +52,8 @@ export const Register = () => {
           placeholder="Enter username"
           fullWidth
           required
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           style={{ marginBottom: "10px" }}
         />
         <TextField
@@ -39,6 +61,8 @@ export const Register = () => {
           placeholder="Enter password"
           type="password"
           fullWidth
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           required
           style={{ marginBottom: "10px" }}
         />
@@ -48,6 +72,8 @@ export const Register = () => {
           type="password"
           fullWidth
           required
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          value={confirmPassword}
           style={{ marginBottom: "20px" }}
         />
         <Button
@@ -59,6 +85,7 @@ export const Register = () => {
             backgroundColor: "#363062",
             color: "#E9D5DA",
           }}
+          onClick={handleSubmit}
         >
           Sign up
         </Button>

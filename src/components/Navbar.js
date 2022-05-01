@@ -5,24 +5,33 @@ import Typography from "@mui/material/Typography";
 import { useSelector } from "react-redux";
 import AppBar from "@mui/material/AppBar";
 import { Button, Link } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import PersonIcon from "@mui/icons-material/Person";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import KeyIcon from "@mui/icons-material/Key";
 import LogoutIcon from "@mui/icons-material/Logout";
+import { userLogout } from "../services/AuthServices";
+import { useHistory } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
 export const Navbar = () => {
+  let history = useHistory();
   const authState = useSelector((state) => state.AuthReducer);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
+  const dispatch = useDispatch();
+  const logout = (history) =>
+    userLogout(history)(dispatch);
   const handleClose = () => {
     setAnchorEl(null);
   };
+  useEffect(() => {console.log(authState.username)}, [authState.username]);
+  const goto = (url) => { history.push(url) }
   return (
     <Box>
       <AppBar
@@ -30,15 +39,14 @@ export const Navbar = () => {
         style={{ color: "#E9D5DA", backgroundColor: "#363062" }}
       >
         <Toolbar style={{ justifyContent: "space-between" }}>
-          <Link href="/" underline="none">
-            <Typography
-              variant="h5"
-              component="div"
-              style={{ color: "#E9D5DA" }}
-            >
-              Flashy
-            </Typography>
-          </Link>
+          <Typography
+            variant="h5"
+            component="div"
+            style={{ color: "#E9D5DA", cursor: "pointer" }}
+            onClick={() => goto("/home")}
+          >
+            Flashy
+          </Typography>
           <Box>
             {authState.authStatus === "Success" ? (
               <>
@@ -49,7 +57,7 @@ export const Navbar = () => {
                     aria-haspopup="true"
                     aria-expanded={open ? "true" : undefined}
                     onClick={handleClick}
-                    sx={{ color: "#E9D5DA" }}
+                    style={{ color: "#E9D5DA" }}
                   >
                     <PersonIcon />
                     {" " + authState.username + " "}
@@ -65,17 +73,11 @@ export const Navbar = () => {
                     }}
                     style={{ color: "#FCFFE7" }}
                   >
-                    <MenuItem>
-                      <Link
-                        href="/changePassword"
-                        underline="none"
-                        sx={{ color: "#363062" }}
-                      >
-                        {" "}
+                    <MenuItem onClick={()=>{history.push("/changePassword");
+                    handleClose();}}>
                         <KeyIcon /> Change Password
-                      </Link>
                     </MenuItem>
-                    <MenuItem onClick={handleClose}>
+                    <MenuItem onClick={() => {logout(history); handleClose()}}>
                       <Link
                         href="/login"
                         underline="none"
@@ -89,12 +91,18 @@ export const Navbar = () => {
               </>
             ) : (
               <>
-                <Link href="/login" underline="none">
-                  <Button sx={{ color: "#E9D5DA" }}>Login</Button>
-                </Link>
-                <Link href="/register" underline="none">
-                  <Button sx={{ color: "#E9D5DA" }}>Sign Up</Button>
-                </Link>
+                <Button
+                  style={{ color: "#E9D5DA" }}
+                  onClick={() => goto("/login")}
+                >
+                  Login
+                </Button>
+                <Button
+                  style={{ color: "#E9D5DA" }}
+                  onClick={() => goto("/register")}
+                >
+                  Sign Up
+                </Button>
               </>
             )}
           </Box>

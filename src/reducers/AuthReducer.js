@@ -5,27 +5,34 @@ import {
   SIGNUP_SUCCESS,
   LOAD_USER_SUCCESS,
   LOAD_USER_FAILURE,
+  LOGOUT,
 } from "../common/Constants";
 
 const initialState = {
-  username: "Parithi",
+  username: "",
   decks: [
-    { name: "test 1", tag: "tag1" },
-    { name: "test 2", tag: "tag2" },
+    { name: "test 1", tags: ["tag1", "tag3"] },
+    { name: "test 2", tags: ["tag2"] },
   ],
-  authStatus: "Success",
+  authStatus: "",
+  registerStatus: "",
   authErrMsg: "",
 };
 
 export const AuthReducer = (state = initialState, action) => {
+  console.log(action)
   switch (action.type) {
     case LOGIN_SUCCESS:
+      return {
+        ...state,
+        authStatus: "Success",
+      };
     case LOAD_USER_SUCCESS:
       return {
         ...state,
         authStatus: "Success",
-        username: action.userDetails.username,
-        decks: action.userDetails.decks,
+        username: action.userDetails.name,
+        // decks: action.userDetails.decks,
       };
     case LOGIN_FAILURE:
     case LOAD_USER_FAILURE:
@@ -37,14 +44,19 @@ export const AuthReducer = (state = initialState, action) => {
     case SIGNUP_SUCCESS:
       return {
         ...state,
-        authStatus: "Success",
+        registerStatus: "Success",
       };
     case SIGNUP_FAILURE:
       return {
         ...state,
-        authStatus: "Error",
+        registerStatus: "Error",
         authErrMsg: action.err,
       };
+    case LOGOUT:
+      return {
+        ...state,
+        authStatus: "",
+      }
     default:
       return state;
   }

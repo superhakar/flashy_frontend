@@ -8,9 +8,10 @@ import {
   Paper,
 } from "@mui/material";
 import deckLogo from "../Decks.png"
-import { Link } from "@mui/material";
+import { useHistory } from "react-router-dom"
 
 export const Home = () => {
+    let history = useHistory();
   const authState = useSelector((state) => state.AuthReducer);
   return (
     <>
@@ -19,11 +20,10 @@ export const Home = () => {
       >
         <div className="row" style={{ width: "80%", marginLeft: "10%" }}>
           <div className="col-4" style={{ padding: "20px" }}>
-            <Paper elevation={3} style={{ backgroundColor: "#FCFFE7" }}>
+            <Paper elevation={3} style={{ backgroundColor: "#FCFFE7" }} onClick={()=>{history.push("/decks")}}>
               <Card variant="outlined">
                 <CardActionArea>
                   <CardContent>
-                    <Link href="/decks" underline="none">
                       <div
                         style={{
                           display: "flex",
@@ -39,7 +39,6 @@ export const Home = () => {
                         />
                       </div>
                       <Typography align="center" style={{color:"#363062"}}>Decks</Typography>
-                    </Link>
                   </CardContent>
                 </CardActionArea>
               </Card>

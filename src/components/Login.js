@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect,useState } from "react";
 import {
   Grid,
   Paper,
@@ -9,8 +9,26 @@ import {
   Link,
 } from "@material-ui/core";
 import LoginIcon from "@mui/icons-material/Login";
+
+import { useDispatch } from "react-redux";
+import { userLogin } from "../services/AuthServices";
+import { useHistory } from "react-router-dom";
+
+
 export const Login = () => {
   const avatarStyle = { backgroundColor: "#363062" };
+  let history = useHistory();
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
+  const login = (username, password, history) =>
+    userLogin(username, password, history)(dispatch);
+  const handleSubmit = () => {
+    console.log("Login!!!!!!");
+     login(username, password, history);
+  };
+  useEffect(()=>{},[])
   return (
     <Grid className="page">
       <Paper
@@ -34,6 +52,8 @@ export const Login = () => {
           placeholder="Enter username"
           fullWidth
           required
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           style={{ marginBottom: "10px" }}
         />
         <TextField
@@ -42,6 +62,8 @@ export const Login = () => {
           type="password"
           fullWidth
           required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           style={{ marginBottom: "20px" }}
         />
         <Button
@@ -53,6 +75,7 @@ export const Login = () => {
             backgroundColor: "#363062",
             color: "#E9D5DA",
           }}
+          onClick={handleSubmit}
         >
           Sign in
         </Button>

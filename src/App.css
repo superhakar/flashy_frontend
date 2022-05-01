@@ -48,8 +48,14 @@ html {
 
 .page{
   background-color: #E9D5DA;
-  height: 100vh;
+  height: 90vh;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+li{
+  padding: 6px 6px !important;
+  display: flex !important;
+  justify-content: flex-start !important;
 }

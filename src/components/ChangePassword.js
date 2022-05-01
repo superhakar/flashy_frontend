@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useState} from "react";
 import {
   Grid,
   Paper,
@@ -10,6 +10,7 @@ import KeyIcon from "@mui/icons-material/Key";
 
 export const ChangePassword = () => {
   const avatarStyle = { backgroundColor: "#363062" };
+  const [password, setPassword] = useState("");
   return (
     <Grid className="page">
       <Paper
@@ -28,13 +29,6 @@ export const ChangePassword = () => {
           </Avatar>
           <h2>Change Password</h2>
         </Grid>
-        <TextField
-          label="Old Password"
-          placeholder="Enter Old Password"
-          fullWidth
-          required
-          style={{ marginBottom: "10px" }}
-        />
         <TextField
           label="New Password"
           placeholder="Enter New password"
