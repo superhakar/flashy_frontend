@@ -24,7 +24,6 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Slide from "@mui/material/Slide";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
-
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -36,6 +35,7 @@ export const Cards = () => {
   const dispatch = useDispatch();
   const [open, setOpen] = React.useState(false);
   const [openCard, setOpenCard] = React.useState(false);
+  const [openEdit, setOpenEdit] = React.useState(false);
   const [content, setContent] = useState("");
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
@@ -66,12 +66,41 @@ export const Cards = () => {
     setAnswer("");
   };
 
+  const handleEditSubmit = () => {
+    console.log("Edit Card!!!!!!");
+    console.log({ content, question, answer, deckId: authState.decks[id]._id });
+
+    setOpen(false);
+    axios
+      .post("/cards/editCard", {
+        cardId: authState.decks[id].cards[selected]._id,
+        content,
+        question,
+        answer,
+        deckId: authState.decks[id]._id,
+      })
+      .then((res) => {
+        console.log(res);
+        dispatch(notifySuccess("Edited Card Successfully"));
+        dispatch(userLoad());
+      })
+      .catch((err) => {
+        dispatch(notifyError(err.response.data.errors[0].msg));
+      });
+    setContent("");
+    setQuestion("");
+    setAnswer("");
+  };
+
   const handleClickOpen = () => {
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
+  };
+  const handleEditClose = () => {
+    setOpenEdit(false);
   };
   const handleCloseCard = () => {
     setOpenCard(false);
@@ -106,7 +135,7 @@ export const Cards = () => {
                             alignItems: "center",
                             justifyContent: "space-evenly",
                             height: "30vh",
-                            padding: "5px 5px"
+                            padding: "5px 5px",
                           }}
                         >
                           <Typography variant="h5" align="center">
@@ -134,9 +163,16 @@ export const Cards = () => {
                                 View Full Card
                               </Button>
                               <Button
-                                style={{ color: "#673ab7" }}
+                                style={{ backgroundColor: "#673ab7" }}
                                 size="small"
-                                variant="outlined"
+                                variant="contained"
+                                onClick={() => {
+                                  setSelected(ind);
+                                  setAnswer(c.answer);
+                                  setQuestion(c.question);
+                                  setContent(c.content);
+                                  setOpenEdit(true);
+                                }}
                               >
                                 Edit Card
                               </Button>
@@ -234,10 +270,80 @@ export const Cards = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button style={{ backgroundColor: "#673ab7" }} onClick={handleClose}>
+          <Button
+            variant="contained"
+            style={{ backgroundColor: "#673ab7" }}
+            onClick={handleClose}
+          >
             Cancel
           </Button>
-          <Button style={{ backgroundColor: "#673ab7" }} onClick={handleSubmit}>
+          <Button
+            variant="contained"
+            style={{ backgroundColor: "#673ab7" }}
+            onClick={handleSubmit}
+          >
+            Create
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={openEdit}
+        onClose={handleEditClose}
+        style={{
+          color: "#FCFFE7",
+        }}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Edit Card</DialogTitle>
+        <DialogContent
+          style={{
+            height: "50vh",
+            maxHeight: "80vh",
+          }}
+        >
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Content"
+            fullWidth
+            multiline
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            variant="standard"
+          />
+          <TextField
+            margin="dense"
+            label="Question"
+            fullWidth
+            multiline
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            variant="standard"
+          />
+          <TextField
+            margin="dense"
+            label="Answer"
+            fullWidth
+            multiline
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value)}
+            variant="standard"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            variant="contained"
+            style={{ backgroundColor: "#673ab7" }}
+            onClick={handleEditClose}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            style={{ backgroundColor: "#673ab7" }}
+            onClick={handleEditSubmit}
+          >
             Create
           </Button>
         </DialogActions>

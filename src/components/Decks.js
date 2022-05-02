@@ -438,7 +438,7 @@ export const Decks = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleEditSubmit}>Create</Button>
+          <Button onClick={handleEditSubmit}>Edit</Button>
         </DialogActions>
       </Dialog>
       {/* Read without Timer */}
