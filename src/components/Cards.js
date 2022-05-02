@@ -22,6 +22,8 @@ import { useHistory } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Slide from "@mui/material/Slide";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -102,8 +104,9 @@ export const Cards = () => {
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "center",
-                            justifyContent: "center",
+                            justifyContent: "space-evenly",
                             height: "30vh",
+                            padding: "5px 5px"
                           }}
                         >
                           <Typography variant="h5" align="center">
@@ -136,6 +139,13 @@ export const Cards = () => {
                                 variant="outlined"
                               >
                                 Edit Card
+                              </Button>
+                              <Button
+                                style={{ backgroundColor: "#b81828" }}
+                                size="small"
+                                variant="contained"
+                              >
+                                <DeleteOutlineIcon />
                               </Button>
                             </div>
                           </div>

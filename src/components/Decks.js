@@ -28,6 +28,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
 const readTime = 15;
 const ansTime = 10;
@@ -57,6 +58,7 @@ export const Decks = () => {
   const authState = useSelector((state) => state.AuthReducer);
   const dispatch = useDispatch();
   const [open, setOpen] = React.useState(false);
+  const [editOpen, setEditOpen] = React.useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
   const [name, setName] = useState("");
   const [readOpen, setReadOpen] = useState(false);
@@ -81,7 +83,31 @@ export const Decks = () => {
       .post("/decks/addDeck", { name, tags })
       .then((res) => {
         console.log(res);
-        dispatch(notifySuccess("Create Deck Successfully"));
+        dispatch(notifySuccess("Created Deck Successfully"));
+        dispatch(userLoad());
+      })
+      .catch((err) => {
+        dispatch(notifyError(err.response.data.errors[0].msg));
+      });
+    setName("");
+    setSelectedTags([]);
+  };
+
+  const handleEditSubmit = () => {
+    console.log("Edit Deck!!!!!!");
+    let tags = selectedTags.map((t) => t.label);
+    console.log(name, tags);
+
+    setEditOpen(false);
+    axios
+      .post("/decks/editDeck", {
+        deckId: authState.decks[currentDeckId]._id,
+        name,
+        tags,
+      })
+      .then((res) => {
+        console.log(res);
+        dispatch(notifySuccess("Edited Deck Successfully"));
         dispatch(userLoad());
       })
       .catch((err) => {
@@ -94,9 +120,13 @@ export const Decks = () => {
   const handleClickOpen = () => {
     setOpen(true);
   };
+  const handleEditClose = () => {
+    setEditOpen(false);
+  };
 
   const handleClose = () => {
     setOpen(false);
+    setEditOpen(false);
     setReview(false);
     setCorrect("");
   };
@@ -180,6 +210,7 @@ export const Decks = () => {
                         alignItems: "center",
                         justifyContent: "space-evenly",
                         height: "30vh",
+                        padding: "2px 5px",
                       }}
                     >
                       <Typography variant="h4" align="center">
@@ -221,8 +252,24 @@ export const Decks = () => {
                             size="small"
                             variant="contained"
                             style={{ backgroundColor: "#673ab7" }}
+                            onClick={() => {
+                              setCurrentDeckId(ind);
+                              setName(authState.decks[ind].name);
+                              let tags = authState.decks[ind].tags.map((t) => {
+                                return { label: t, value: t };
+                              });
+                              setSelectedTags(tags);
+                              setEditOpen(true);
+                            }}
                           >
                             Edit Deck
+                          </Button>
+                          <Button
+                            size="small"
+                            variant="contained"
+                            style={{ backgroundColor: "#b81828" }}
+                          >
+                            <DeleteOutlineIcon />
                           </Button>
                         </div>
                         <div
@@ -350,6 +397,48 @@ export const Decks = () => {
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
           <Button onClick={handleSubmit}>Create</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={editOpen}
+        onClose={handleEditClose}
+        style={{
+          color: "#FCFFE7",
+        }}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle>Edit Deck</DialogTitle>
+        <DialogContent
+          style={{
+            height: "50vh",
+            maxHeight: "80vh",
+          }}
+        >
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="Deck Name"
+            fullWidth
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            variant="standard"
+          />
+          <Typography style={{ marginTop: "10px", marginBottom: "10px" }}>
+            Select Tags:
+          </Typography>
+          <MultiSelect
+            options={INITIAL_OPTIONS}
+            value={selectedTags}
+            onChange={setSelectedTags}
+            labelledBy="Select Tags"
+            isCreatable={true}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleEditSubmit}>Create</Button>
         </DialogActions>
       </Dialog>
       {/* Read without Timer */}
