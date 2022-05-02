@@ -23,6 +23,7 @@ import { useParams } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Slide from "@mui/material/Slide";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import DialogContentText from "@mui/material/DialogContentText";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -39,6 +40,7 @@ export const Cards = () => {
   const [content, setContent] = useState("");
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
+  const [deleteConfirm, setDeleteConfirm] = useState("");
   const [selected, setSelected] = useState(-1);
 
   const handleSubmit = () => {
@@ -70,7 +72,7 @@ export const Cards = () => {
     console.log("Edit Card!!!!!!");
     console.log({ content, question, answer, deckId: authState.decks[id]._id });
 
-    setOpen(false);
+    setOpenEdit(false);
     axios
       .post("/cards/editCard", {
         cardId: authState.decks[id].cards[selected]._id,
@@ -92,6 +94,25 @@ export const Cards = () => {
     setAnswer("");
   };
 
+  const handleDelete= () => {
+    console.log("Delete Card!!!!!!");
+
+    setDeleteConfirm(false);
+    axios
+      .post("/cards/deleteCard", {
+        cardId: authState.decks[id].cards[selected]._id,
+      })
+      .then((res) => {
+        console.log(res);
+        dispatch(notifySuccess("Deleted Card Successfully"));
+        dispatch(userLoad());
+      })
+      .catch((err) => {
+        dispatch(notifyError(err.response.data.errors[0].msg));
+      });
+    setSelected(-1)
+  };
+
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -101,6 +122,9 @@ export const Cards = () => {
   };
   const handleEditClose = () => {
     setOpenEdit(false);
+  };
+  const handleDeleteClose = () => {
+    setDeleteConfirm(false);
   };
   const handleCloseCard = () => {
     setOpenCard(false);
@@ -180,6 +204,10 @@ export const Cards = () => {
                                 style={{ backgroundColor: "#b81828" }}
                                 size="small"
                                 variant="contained"
+                                onClick={() => {
+                                  setSelected(ind);
+                                  setDeleteConfirm(true);
+                                }}
                               >
                                 <DeleteOutlineIcon />
                               </Button>
@@ -345,6 +373,27 @@ export const Cards = () => {
             onClick={handleEditSubmit}
           >
             Create
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={deleteConfirm}
+        onClose={handleDeleteClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Are you sure you want to delete ?"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Deleted Card Cannot be restored 
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteClose}>Disagree</Button>
+          <Button onClick={handleDelete} autoFocus>
+            Agree
           </Button>
         </DialogActions>
       </Dialog>

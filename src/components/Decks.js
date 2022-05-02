@@ -28,6 +28,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
+import DialogContentText from "@mui/material/DialogContentText";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
 const readTime = 15;
@@ -72,6 +73,7 @@ export const Decks = () => {
   const [review, setReview] = useState(false);
   const [responses, setResponses] = useState([]);
   const [currentDeckId, setCurrentDeckId] = useState(-1);
+  const [deleteConfirm, setDeleteConfirm] = useState("");
 
   const handleSubmit = () => {
     console.log("Add Deck!!!!!!");
@@ -123,6 +125,9 @@ export const Decks = () => {
   const handleEditClose = () => {
     setEditOpen(false);
   };
+  const handleDeleteClose = () => {
+    setDeleteConfirm(false);
+  };
 
   const handleClose = () => {
     setOpen(false);
@@ -168,6 +173,24 @@ export const Decks = () => {
       },
     ]);
     cor ? setCorrect("Correct") : setCorrect("Wrong");
+  };
+  const handleDelete = () => {
+    console.log("Delete Deck!!!!!!");
+
+    setDeleteConfirm(false);
+    axios
+      .post("/decks/deleteDeck", {
+        deckId: authState.decks[currentDeckId]._id,
+      })
+      .then((res) => {
+        console.log(res);
+        dispatch(notifySuccess("Deleted Deck Successfully"));
+        dispatch(userLoad());
+      })
+      .catch((err) => {
+        dispatch(notifyError(err.response.data.errors[0].msg));
+      });
+    setCurrentDeckId(-1);
   };
 
   const submit = () => {
@@ -268,6 +291,7 @@ export const Decks = () => {
                             size="small"
                             variant="contained"
                             style={{ backgroundColor: "#b81828" }}
+                            onClick={()=>{setCurrentDeckId(ind);setDeleteConfirm(true)}}
                           >
                             <DeleteOutlineIcon />
                           </Button>
@@ -357,6 +381,27 @@ export const Decks = () => {
           </div>
         </div>
       </div>
+      <Dialog
+        open={deleteConfirm}
+        onClose={handleDeleteClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Are you sure you want to delete ?"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Deleted Deck Cannot be restored
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteClose}>Disagree</Button>
+          <Button onClick={handleDelete} autoFocus>
+            Agree
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Dialog
         open={open}
         onClose={handleClose}
