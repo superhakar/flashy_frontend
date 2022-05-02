@@ -63,3 +63,7 @@ li{
 .row{
   --bs-gutter-x: 0 !important;
 }
+
+button{
+  margin: 0 0.3em !important;
+}

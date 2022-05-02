@@ -40,7 +40,7 @@ const renderTime = (dimension, time) => {
     </div>
   );
 };
-const getTimeSeconds = (aTime,time) => (aTime - time) | 0;
+const getTimeSeconds = (aTime, time) => (aTime - time) | 0;
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -120,6 +120,7 @@ export const Decks = () => {
     setReview(false);
     setCorrect("");
     setScore(0);
+    setResponses([]);
   };
 
   const checkAndAddResponse = () => {
@@ -127,8 +128,38 @@ export const Decks = () => {
       authState.decks[currentDeckId].cards[
         currentCardId
       ].answer.toUpperCase() === answer.toUpperCase();
-      if(cor) setScore(score+1)
+    if (cor) setScore(score + 1);
+    setResponses([
+      ...responses,
+      {
+        cardId: authState.decks[currentDeckId].cards[currentCardId]._id,
+        answer: answer,
+        correct: cor,
+      },
+    ]);
     cor ? setCorrect("Correct") : setCorrect("Wrong");
+  };
+
+  const submit = () => {
+    console.log({
+      deckId: authState.decks[currentDeckId]._id,
+      score: score,
+      responses: responses,
+    });
+    axios
+      .post("/quiz/addQuiz", {
+        deckId: authState.decks[currentDeckId]._id,
+        score: score,
+        responses: responses,
+      })
+      .then((res) => {
+        console.log(res);
+        dispatch(notifySuccess("Quiz Recorded Successfully"));
+        dispatch(userLoad());
+      })
+      .catch((err) => {
+        dispatch(notifyError(err.response.data.errors[0].msg));
+      });
   };
   return (
     <>
@@ -139,95 +170,109 @@ export const Decks = () => {
         <div className="row" style={{ width: "80%", marginLeft: "10%" }}>
           {authState.decks.map((d, ind) => {
             return (
-              <div className="col-4" style={{ padding: "20px" }}>
-                <Paper
-                  elevation={3}
-                  key={d._id}
-                  style={{ backgroundColor: "#FCFFE7" }}
-                >
+              <div className="col-4" key={d._id} style={{ padding: "20px" }}>
+                <Paper elevation={3} style={{ backgroundColor: "#FCFFE7" }}>
                   <Card variant="outlined">
-                    <CardActionArea>
-                      <CardContent
+                    <CardContent
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "space-evenly",
+                        height: "30vh",
+                      }}
+                    >
+                      <Typography variant="h4" align="center">
+                        {d.name}
+                      </Typography>
+                      <Typography align="center">
+                        {d.tags.map((t) => {
+                          return (
+                            <span>
+                              <LocalOfferIcon style={{ color: "#363062" }} />
+                              {" " + t + " "}
+                            </span>
+                          );
+                        })}
+                      </Typography>
+                      <div
                         style={{
                           display: "flex",
                           flexDirection: "column",
                           alignItems: "center",
-                          justifyContent: "center",
-                          height: "30vh",
                         }}
                       >
-                        <Typography variant="h5" align="center">
-                          {d.name}
-                        </Typography>
-                        <Typography align="center">
-                          {d.tags.map((t) => {
-                            return (
-                              <span>
-                                <LocalOfferIcon style={{ color: "#363062" }} />
-                                {" " + t + " "}
-                              </span>
-                            );
-                          })}
-                        </Typography>
                         <div
-                          style={{ display: "flex", flexDirection: "column" }}
+                          style={{
+                            padding: "5px",
+                            display: "flex",
+                            flexDirection: "row",
+                          }}
                         >
-                          <div
-                            style={{
-                              padding: "5px",
-                              display: "flex",
-                              flexDirection: "row",
-                            }}
+                          <Button
+                            variant="contained"
+                            size="small"
+                            style={{ backgroundColor: "#673ab7" }}
+                            onClick={() => history.push("/cards/" + ind)}
                           >
-                            <Button
-                              variant="contained"
-                              onClick={() => history.push("/cards/" + ind)}
-                            >
-                              View Cards
-                            </Button>
-                            <Button variant="outlined">Edit Deck</Button>
-                          </div>
-                          <div
-                            style={{
-                              padding: "5px",
-                              display: "flex",
-                              flexDirection: "row",
-                            }}
+                            View Cards
+                          </Button>
+                          <Button
+                            size="small"
+                            variant="contained"
+                            style={{ backgroundColor: "#673ab7" }}
                           >
-                            <Button
-                              variant="contained"
-                              onClick={() => {
-                                setReadOpen(true);
-                                setCurrentDeckId(ind);
-                                setCurrentCardId(0);
-                              }}
-                            >
-                              Read
-                            </Button>
-                            <Button
-                              variant="outlined"
-                              onClick={() => {
-                                setReadQuizOpen(true);
-                                setCurrentDeckId(ind);
-                                setCurrentCardId(0);
-                              }}
-                            >
-                              Read & Quiz
-                            </Button>
-                            <Button
-                              variant="contained"
-                              onClick={() => {
-                                setQuizOpen(true);
-                                setCurrentDeckId(ind);
-                                setCurrentCardId(0);
-                              }}
-                            >
-                              Quiz
-                            </Button>
-                          </div>
+                            Edit Deck
+                          </Button>
                         </div>
-                      </CardContent>
-                    </CardActionArea>
+                        <div
+                          style={{
+                            padding: "5px",
+                            display: "flex",
+                            flexDirection: "row",
+                          }}
+                        >
+                          <Button
+                            variant="contained"
+                            style={{ backgroundColor: "#673ab7" }}
+                            size="small"
+                            onClick={() => {
+                              setReadOpen(true);
+                              setCurrentDeckId(ind);
+                              setCurrentCardId(0);
+                            }}
+                          >
+                            Read
+                          </Button>
+                          <Button
+                            variant="contained"
+                            style={{ backgroundColor: "#673ab7" }}
+                            size="small"
+                            onClick={(e) => {
+                              setReadQuizOpen(true);
+                              setCurrentDeckId(ind);
+                              setCurrentCardId(0);
+                              e.currentTarget.blur();
+                            }}
+                          >
+                            Read & Quiz
+                          </Button>
+                          <Button
+                            size="small"
+                            style={{ backgroundColor: "#673ab7" }}
+                            variant="contained"
+                            onClick={(e) => {
+                              setQuizOpen(true);
+                              setCurrentDeckId(ind);
+                              setCurrentCardId(0);
+                              e.currentTarget.blur();
+                            }}
+                          >
+                            Quiz
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
                   </Card>
                 </Paper>
               </div>
@@ -319,7 +364,10 @@ export const Decks = () => {
           fullWidth
           maxWidth="md"
         >
-          <div className="row" style={{ alignItems: "center",backgroundColor: "#f2e6c4" }}>
+          <div
+            className="row"
+            style={{ alignItems: "center", backgroundColor: "#f2e6c4" }}
+          >
             <div
               className="col-1"
               style={{ cursor: "pointer" }}
@@ -411,10 +459,10 @@ export const Decks = () => {
                     authState.decks[currentDeckId].cards.length - 1
                   )
                     setCurrentCardId(currentCardId + 1);
-                  else{
+                  else {
                     setReadQuizOpen(false);
-                    setCurrentCardId(0)
-                    setQuizOpen(true)
+                    setCurrentCardId(0);
+                    setQuizOpen(true);
                   }
                   return {
                     shouldRepeat: readTime - totalElapsedTime === 0,
@@ -468,7 +516,7 @@ export const Decks = () => {
                     authState.decks[currentDeckId].cards.length - 1
                   )
                     setCurrentCardId(currentCardId + 1);
-                  else{
+                  else {
                     setReadQuizOpen(false);
                     setCurrentCardId(0);
                     setQuizOpen(true);
@@ -548,6 +596,7 @@ export const Decks = () => {
                     else {
                       setQuizOpen(false);
                       setResultOpen(true);
+                      submit();
                     }
                   } else {
                     checkAndAddResponse();

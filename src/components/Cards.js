@@ -23,7 +23,6 @@ import { useParams } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Slide from "@mui/material/Slide";
 
-
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -38,7 +37,7 @@ export const Cards = () => {
   const [content, setContent] = useState("");
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
-  const [selected,setSelected] = useState(-1);
+  const [selected, setSelected] = useState(-1);
 
   const handleSubmit = () => {
     console.log("Add Card!!!!!!");
@@ -46,7 +45,12 @@ export const Cards = () => {
 
     setOpen(false);
     axios
-      .post("/cards/addCard", { content, question, answer, deckId: authState.decks[id]._id })
+      .post("/cards/addCard", {
+        content,
+        question,
+        answer,
+        deckId: authState.decks[id]._id,
+      })
       .then((res) => {
         console.log(res);
         dispatch(notifySuccess("Created Card Successfully"));
@@ -55,9 +59,9 @@ export const Cards = () => {
       .catch((err) => {
         dispatch(notifyError(err.response.data.errors[0].msg));
       });
-      setContent("");
-      setQuestion("");
-      setAnswer("");
+    setContent("");
+    setQuestion("");
+    setAnswer("");
   };
 
   const handleClickOpen = () => {
@@ -70,7 +74,6 @@ export const Cards = () => {
   const handleCloseCard = () => {
     setOpenCard(false);
   };
-  
 
   return (
     <>
@@ -117,6 +120,8 @@ export const Cards = () => {
                               }}
                             >
                               <Button
+                                style={{ backgroundColor: "#673ab7" }}
+                                size="small"
                                 variant="contained"
                                 onClick={() => {
                                   setSelected(ind);
@@ -125,7 +130,13 @@ export const Cards = () => {
                               >
                                 View Full Card
                               </Button>
-                              <Button variant="outlined">Edit Card</Button>
+                              <Button
+                                style={{ color: "#673ab7" }}
+                                size="small"
+                                variant="outlined"
+                              >
+                                Edit Card
+                              </Button>
                             </div>
                           </div>
                         </CardContent>
@@ -213,8 +224,12 @@ export const Cards = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleSubmit}>Create</Button>
+          <Button style={{ backgroundColor: "#673ab7" }} onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button style={{ backgroundColor: "#673ab7" }} onClick={handleSubmit}>
+            Create
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -234,7 +249,7 @@ export const Cards = () => {
               height: "50",
               maxHeight: "80vh",
               textAlign: "center",
-              justifyContent:"center"
+              justifyContent: "center",
             }}
           >
             <Typography variant="h5">
