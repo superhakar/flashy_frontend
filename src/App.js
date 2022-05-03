@@ -18,6 +18,7 @@ import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { Cards } from "./components/Cards";
 import { QuizHistory } from "./components/QuizHistory";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 function App() {
   let history = useHistory();
@@ -38,13 +39,17 @@ function App() {
           <Notify />
           <Switch>
             <Route exact path="/" component={Landing} />
-            <Route exact path="/home" component={Home} />
             <Route exact path="/register" component={Register} />
             <Route exact path="/login" component={Login} />
-            <Route exact path="/decks" component={Decks} />
-            <Route exact path="/quizHistory" component={QuizHistory} />
-            <Route exact path="/cards/:id" component={Cards} />
-            <Route exact path="/changePassword" component={ChangePassword} />
+            <ProtectedRoute exact path="/home" component={Home} />
+            <ProtectedRoute exact path="/decks" component={Decks} />
+            <ProtectedRoute exact path="/quizHistory" component={QuizHistory} />
+            <ProtectedRoute exact path="/cards/:id" component={Cards} />
+            <ProtectedRoute
+              exact
+              path="/changePassword"
+              component={ChangePassword}
+            />
             <Redirect from="*" to="/"></Redirect>
           </Switch>
         </Router>

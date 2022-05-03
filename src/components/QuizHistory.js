@@ -66,7 +66,7 @@ export const QuizHistory = () => {
       .get("/quiz/getQuiz")
       .then((res) => {
         console.log(res.data);
-        setQuizzes(res.data.data);
+        setQuizzes(res.data.data.reverse());
         setQuizzesPlayed(res.data.data.length);
         let total = 0;
         res.data.data.map((q) => {

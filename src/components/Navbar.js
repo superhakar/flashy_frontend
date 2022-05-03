@@ -52,6 +52,18 @@ export const Navbar = () => {
               <>
                 <div>
                   <Button
+                    style={{ color: "#E9D5DA" }}
+                    onClick={() => goto("/decks")}
+                  >
+                    Decks
+                  </Button>
+                  <Button
+                    style={{ color: "#E9D5DA" }}
+                    onClick={() => goto("/quizHistory")}
+                  >
+                    Quiz History
+                  </Button>
+                  <Button
                     id="basic-button"
                     aria-controls={open ? "basic-menu" : undefined}
                     aria-haspopup="true"
@@ -73,11 +85,20 @@ export const Navbar = () => {
                     }}
                     style={{ color: "#FCFFE7" }}
                   >
-                    <MenuItem onClick={()=>{history.push("/changePassword");
-                    handleClose();}}>
-                        <KeyIcon /> Change Password
+                    <MenuItem
+                      onClick={() => {
+                        history.push("/changePassword");
+                        handleClose();
+                      }}
+                    >
+                      <KeyIcon /> Change Password
                     </MenuItem>
-                    <MenuItem onClick={() => {logout(history); handleClose()}}>
+                    <MenuItem
+                      onClick={() => {
+                        logout(history);
+                        handleClose();
+                      }}
+                    >
                       <Link
                         href="/login"
                         underline="none"

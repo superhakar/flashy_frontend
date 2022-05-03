@@ -33,7 +33,7 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
 const readTime = 15;
 const ansTime = 10;
-const reviewTime = 1;
+const reviewTime = 2;
 
 const renderTime = (dimension, time) => {
   return (
