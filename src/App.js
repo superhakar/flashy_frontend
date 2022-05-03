@@ -17,6 +17,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { Cards } from "./components/Cards";
+import { QuizHistory } from "./components/QuizHistory";
 
 function App() {
   let history = useHistory();
@@ -41,6 +42,7 @@ function App() {
             <Route exact path="/register" component={Register} />
             <Route exact path="/login" component={Login} />
             <Route exact path="/decks" component={Decks} />
+            <Route exact path="/quizHistory" component={QuizHistory} />
             <Route exact path="/cards/:id" component={Cards} />
             <Route exact path="/changePassword" component={ChangePassword} />
             <Redirect from="*" to="/"></Redirect>

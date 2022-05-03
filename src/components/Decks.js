@@ -12,6 +12,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
+import DialogContentText from "@mui/material/DialogContentText";
 import plusLogo from "../Plus.png";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import Button from "@mui/material/Button";
@@ -28,12 +29,11 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
-import DialogContentText from "@mui/material/DialogContentText";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
 const readTime = 15;
 const ansTime = 10;
-const reviewTime = 2;
+const reviewTime = 1;
 
 const renderTime = (dimension, time) => {
   return (
@@ -291,7 +291,10 @@ export const Decks = () => {
                             size="small"
                             variant="contained"
                             style={{ backgroundColor: "#b81828" }}
-                            onClick={()=>{setCurrentDeckId(ind);setDeleteConfirm(true)}}
+                            onClick={() => {
+                              setCurrentDeckId(ind);
+                              setDeleteConfirm(true);
+                            }}
                           >
                             <DeleteOutlineIcon />
                           </Button>
@@ -509,7 +512,9 @@ export const Decks = () => {
                 if (currentCardId > 0) setCurrentCardId(currentCardId - 1);
               }}
             >
-              <ChevronLeftIcon style={{ fontSize: "4em" }}></ChevronLeftIcon>
+              {currentCardId !== 0 && (
+                <ChevronLeftIcon style={{ fontSize: "4em" }}></ChevronLeftIcon>
+              )}
             </div>
             <div className="col-10">
               <DialogContent
@@ -548,7 +553,12 @@ export const Decks = () => {
                   setCurrentCardId(currentCardId + 1);
               }}
             >
-              <ChevronRightIcon style={{ fontSize: "4em" }}></ChevronRightIcon>
+              {currentCardId !==
+                authState.decks[currentDeckId].cards.length - 1 && (
+                <ChevronRightIcon
+                  style={{ fontSize: "4em" }}
+                ></ChevronRightIcon>
+              )}
             </div>
           </div>
         </Dialog>
