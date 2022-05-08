@@ -48,11 +48,19 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: superhakar/flashy_frontend:latest
-      - name: Deploy Netlify
-        uses: danakim/gh-action-deploy-netlify@master
+      - name: Deploy in Netlify
+        uses: nwtgck/actions-netlify@v1.1
         with:
-          AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-          DEPLOY_PROD: true
+          publish-dir: './build'
+          production-branch: master
+          github-token: ${{ secrets.MY_TOKEN }}
+          deploy-message: "Deploy from GitHub Actions"
+          enable-pull-request-comment: false
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        timeout-minutes: 1
  
 
