@@ -32,7 +32,7 @@ jobs:
          node-version: '14.16'
       - run: npm ci
       - run: npm test -- --watchAll=false
-      - run: npm build
+      - run: CI=false npm run build
 
       - name: Docker Login
         uses: docker/login-action@v2.0.0
@@ -48,6 +48,19 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: superhakar/flashy_frontend:latest
-
+      - name: Deploy in Netlify
+        uses: nwtgck/actions-netlify@v1.1
+        with:
+          publish-dir: './build'
+          production-branch: master
+          github-token: ${{ secrets.MY_TOKEN }}
+          deploy-message: "Deploy from GitHub Actions"
+          enable-pull-request-comment: false
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        timeout-minutes: 1
  
 
