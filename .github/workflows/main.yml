@@ -32,7 +32,7 @@ jobs:
          node-version: '14.16'
       - run: npm ci
       - run: npm test -- --watchAll=false
-      - run: npm run build
+      - run: CI = false npm run build
 
       - name: Docker Login
         uses: docker/login-action@v2.0.0
