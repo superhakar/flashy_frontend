@@ -1,4 +1,4 @@
-import React, { useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Grid,
   Paper,
@@ -14,7 +14,6 @@ import { useDispatch } from "react-redux";
 import { userLogin } from "../services/AuthServices";
 import { useHistory } from "react-router-dom";
 
-
 export const Login = () => {
   const avatarStyle = { backgroundColor: "#363062" };
   let history = useHistory();
@@ -26,9 +25,10 @@ export const Login = () => {
     userLogin(username, password, history)(dispatch);
   const handleSubmit = () => {
     console.log("Login!!!!!!");
-     login(username, password, history);
+    console.log(process.env.BACKEND_URL);
+    login(username, password, history);
   };
-  useEffect(()=>{},[])
+  useEffect(() => {}, []);
   return (
     <Grid className="page">
       <Paper
