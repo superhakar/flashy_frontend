@@ -93,7 +93,7 @@ export const QuizHistory = () => {
                     align="center"
                     style={{ color: "#363062" }}
                   >
-                    Average Score: {avgScore * 100 + "%"}
+                    Average Score: {Math.round(avgScore * 100 )+ "%"}
                   </Typography>
                 </CardContent>
               </Card>

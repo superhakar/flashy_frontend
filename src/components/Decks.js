@@ -58,8 +58,8 @@ export const Decks = () => {
   let history = useHistory();
   const authState = useSelector((state) => state.AuthReducer);
   const dispatch = useDispatch();
-  const [open, setOpen] = React.useState(false);
-  const [editOpen, setEditOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
   const [name, setName] = useState("");
   const [readOpen, setReadOpen] = useState(false);
@@ -277,6 +277,7 @@ export const Decks = () => {
                             style={{ backgroundColor: "#673ab7" }}
                             onClick={() => {
                               setCurrentDeckId(ind);
+                              setCurrentCardId(-1);
                               setName(authState.decks[ind].name);
                               let tags = authState.decks[ind].tags.map((t) => {
                                 return { label: t, value: t };
@@ -447,6 +448,7 @@ export const Decks = () => {
           <Button onClick={handleSubmit}>Create</Button>
         </DialogActions>
       </Dialog>
+
       <Dialog
         open={editOpen}
         onClose={handleEditClose}
@@ -490,7 +492,7 @@ export const Decks = () => {
         </DialogActions>
       </Dialog>
       {/* Read without Timer */}
-      {currentDeckId !== -1 && (
+      {currentDeckId !== -1 && currentCardId !== -1 && (
         <Dialog
           open={readOpen}
           TransitionComponent={Transition}
@@ -505,66 +507,76 @@ export const Decks = () => {
             className="row"
             style={{ alignItems: "center", backgroundColor: "#f2e6c4" }}
           >
-            <div
-              className="col-1"
-              style={{ cursor: "pointer" }}
-              onClick={() => {
-                if (currentCardId > 0) setCurrentCardId(currentCardId - 1);
-              }}
-            >
-              {currentCardId !== 0 && (
-                <ChevronLeftIcon style={{ fontSize: "4em" }}></ChevronLeftIcon>
-              )}
-            </div>
-            <div className="col-10">
-              <DialogContent
-                style={{
-                  height: "50vh",
-                  maxHeight: "80vh",
-                  textAlign: "center",
-                  justifyContent: "center",
-                }}
-              >
+            {authState.decks[currentDeckId].cards.length === 0 ? (
+              <>
+                <Typography variant="h2">No cards in this Deck</Typography>
+              </>
+            ) : (
+              <>
                 <div
-                  style={{
-                    display: "flex",
-                    height: "100%",
-                    alignItems: "center",
-                    justifyContent: "center",
+                  className="col-1"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    if (currentCardId > 0) setCurrentCardId(currentCardId - 1);
                   }}
                 >
-                  <Typography variant="h5">
-                    {
-                      authState.decks[currentDeckId].cards[currentCardId]
-                        .content
-                    }
-                  </Typography>
+                  {currentCardId !== 0 && (
+                    <ChevronLeftIcon
+                      style={{ fontSize: "4em" }}
+                    ></ChevronLeftIcon>
+                  )}
                 </div>
-              </DialogContent>
-            </div>
-            <div
-              className="col-1"
-              style={{ cursor: "pointer" }}
-              onClick={() => {
-                if (
-                  currentCardId <
-                  authState.decks[currentDeckId].cards.length - 1
-                )
-                  setCurrentCardId(currentCardId + 1);
-              }}
-            >
-              {currentCardId !==
-                authState.decks[currentDeckId].cards.length - 1 && (
-                <ChevronRightIcon
-                  style={{ fontSize: "4em" }}
-                ></ChevronRightIcon>
-              )}
-            </div>
+                <div className="col-10">
+                  <DialogContent
+                    style={{
+                      height: "50vh",
+                      maxHeight: "80vh",
+                      textAlign: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        height: "100%",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Typography variant="h5">
+                        {
+                          authState.decks[currentDeckId].cards[currentCardId]
+                            .content
+                        }
+                      </Typography>
+                    </div>
+                  </DialogContent>
+                </div>
+                <div
+                  className="col-1"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    if (
+                      currentCardId <
+                      authState.decks[currentDeckId].cards.length - 1
+                    )
+                      setCurrentCardId(currentCardId + 1);
+                  }}
+                >
+                  {currentCardId !==
+                    authState.decks[currentDeckId].cards.length - 1 && (
+                    <ChevronRightIcon
+                      style={{ fontSize: "4em" }}
+                    ></ChevronRightIcon>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </Dialog>
       )}
       {/* Read with Timer */}
-      {currentDeckId !== -1 && (
+      {currentDeckId !== -1 && currentCardId !== -1 && (
         <Dialog
           open={readQuizOpen}
           TransitionComponent={Transition}
@@ -576,106 +588,114 @@ export const Decks = () => {
           maxWidth="md"
         >
           <div style={{ backgroundColor: "#f2e6c4" }}>
-            <div className="row" style={{ paddingTop: "10px" }}>
-              <div
-                className="col-11"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "flex-end",
-                }}
-              >
-                <Typography variant="h8" style={{ paddingRight: "4px" }}>
-                  Time Remaining{" "}
-                </Typography>
-              </div>
-              <CountdownCircleTimer
-                isPlaying={true}
-                size={40}
-                key={currentCardId}
-                strokeWidth={4}
-                colors="#7E2E84"
-                duration={readTime}
-                initialRemainingTime={readTime}
-                onComplete={(totalElapsedTime) => {
-                  if (
-                    currentCardId <
-                    authState.decks[currentDeckId].cards.length - 1
-                  )
-                    setCurrentCardId(currentCardId + 1);
-                  else {
-                    setReadQuizOpen(false);
-                    setCurrentCardId(0);
-                    setQuizOpen(true);
-                  }
-                  return {
-                    shouldRepeat: readTime - totalElapsedTime === 0,
-                  };
-                }}
-              >
-                {({ elapsedTime, color }) => (
-                  <span style={{ color }}>
-                    {renderTime(
-                      "seconds",
-                      getTimeSeconds(readTime, elapsedTime)
-                    )}
-                  </span>
-                )}
-              </CountdownCircleTimer>
-            </div>
-            <div className="row" style={{ alignItems: "center" }}>
-              <div className="col-1"></div>
-              <div className="col-10">
-                <DialogContent
-                  style={{
-                    height: "50vh",
-                    maxHeight: "80vh",
-                    textAlign: "center",
-                    justifyContent: "center",
-                  }}
-                >
+            {authState.decks[currentDeckId].cards.length === 0 ? (
+              <>
+                <Typography variant="h2">No cards in this Deck</Typography>
+              </>
+            ) : (
+              <>
+                <div className="row" style={{ paddingTop: "10px" }}>
                   <div
+                    className="col-11"
                     style={{
                       display: "flex",
-                      height: "100%",
                       alignItems: "center",
-                      justifyContent: "center",
+                      justifyContent: "flex-end",
                     }}
                   >
-                    <Typography variant="h5">
-                      {
-                        authState.decks[currentDeckId].cards[currentCardId]
-                          .content
-                      }
+                    <Typography variant="h8" style={{ paddingRight: "4px" }}>
+                      Time Remaining{" "}
                     </Typography>
                   </div>
-                </DialogContent>
-              </div>
-              <div
-                className="col-1"
-                style={{ cursor: "pointer" }}
-                onClick={() => {
-                  if (
-                    currentCardId <
-                    authState.decks[currentDeckId].cards.length - 1
-                  )
-                    setCurrentCardId(currentCardId + 1);
-                  else {
-                    setReadQuizOpen(false);
-                    setCurrentCardId(0);
-                    setQuizOpen(true);
-                  }
-                }}
-              >
-                <ChevronRightIcon
-                  style={{ fontSize: "4em" }}
-                ></ChevronRightIcon>
-              </div>
-            </div>
+                  <CountdownCircleTimer
+                    isPlaying={true}
+                    size={40}
+                    key={currentCardId}
+                    strokeWidth={4}
+                    colors="#7E2E84"
+                    duration={readTime}
+                    initialRemainingTime={readTime}
+                    onComplete={(totalElapsedTime) => {
+                      if (
+                        currentCardId <
+                        authState.decks[currentDeckId].cards.length - 1
+                      )
+                        setCurrentCardId(currentCardId + 1);
+                      else {
+                        setReadQuizOpen(false);
+                        setCurrentCardId(0);
+                        setQuizOpen(true);
+                      }
+                      return {
+                        shouldRepeat: readTime - totalElapsedTime === 0,
+                      };
+                    }}
+                  >
+                    {({ elapsedTime, color }) => (
+                      <span style={{ color }}>
+                        {renderTime(
+                          "seconds",
+                          getTimeSeconds(readTime, elapsedTime)
+                        )}
+                      </span>
+                    )}
+                  </CountdownCircleTimer>
+                </div>
+                <div className="row" style={{ alignItems: "center" }}>
+                  <div className="col-1"></div>
+                  <div className="col-10">
+                    <DialogContent
+                      style={{
+                        height: "50vh",
+                        maxHeight: "80vh",
+                        textAlign: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          height: "100%",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Typography variant="h5">
+                          {
+                            authState.decks[currentDeckId].cards[currentCardId]
+                              .content
+                          }
+                        </Typography>
+                      </div>
+                    </DialogContent>
+                  </div>
+                  <div
+                    className="col-1"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      if (
+                        currentCardId <
+                        authState.decks[currentDeckId].cards.length - 1
+                      )
+                        setCurrentCardId(currentCardId + 1);
+                      else {
+                        setReadQuizOpen(false);
+                        setCurrentCardId(0);
+                        setQuizOpen(true);
+                      }
+                    }}
+                  >
+                    <ChevronRightIcon
+                      style={{ fontSize: "4em" }}
+                    ></ChevronRightIcon>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </Dialog>
       )}
-      {currentDeckId !== -1 && (
+      {currentDeckId !== -1 && currentCardId !== -1 && (
         <Dialog
           open={quizOpen}
           TransitionComponent={Transition}
@@ -701,154 +721,165 @@ export const Decks = () => {
                 : { backgroundColor: "#f2e6c4", paddingTop: "10px" }
             }
           >
-            <div className="row">
-              <div
-                className="col-11"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "flex-end",
-                }}
-              >
-                <Typography variant="h8" style={{ paddingRight: "4px" }}>
-                  {review
-                    ? currentCardId ===
-                      authState.decks[currentDeckId].cards.length - 1
-                      ? "Final Results In"
-                      : "Next Question In"
-                    : "Time Remaining"}
-                </Typography>
-              </div>
-              <CountdownCircleTimer
-                isPlaying={true}
-                size={40}
-                key={currentCardId + review.toString()}
-                strokeWidth={4}
-                colors="#7E2E84"
-                duration={review ? reviewTime : ansTime}
-                initialRemainingTime={review ? reviewTime : ansTime}
-                onComplete={(totalElapsedTime) => {
-                  if (review) {
-                    setReview(false);
-                    setCorrect("");
-                    setAnswer("");
-                    if (
-                      currentCardId <
-                      authState.decks[currentDeckId].cards.length - 1
-                    )
-                      setCurrentCardId(currentCardId + 1);
-                    else {
-                      setQuizOpen(false);
-                      setResultOpen(true);
-                      submit();
-                    }
-                  } else {
-                    checkAndAddResponse();
-                    setReview(true);
-                  }
-                }}
-              >
-                {({ elapsedTime, color }) => (
-                  <span style={{ color }}>
-                    {renderTime(
-                      "seconds",
-                      getTimeSeconds(review ? reviewTime : ansTime, elapsedTime)
-                    )}
-                  </span>
-                )}
-              </CountdownCircleTimer>
-            </div>
-            <div className="row" style={{ alignItems: "center" }}>
-              <div className="col-12">
-                <DialogContent
-                  style={{
-                    height: "50vh",
-                    maxHeight: "80vh",
-                    textAlign: "center",
-                    justifyContent: "center",
-                  }}
-                >
+            {authState.decks[currentDeckId].cards.length === 0 ? (
+              <>
+                <Typography variant="h2">No cards in this Deck</Typography>
+              </>
+            ) : (
+              <>
+                <div className="row">
                   <div
+                    className="col-11"
                     style={{
                       display: "flex",
-                      flexDirection: "column",
-                      height: "100%",
                       alignItems: "center",
-                      justifyContent: "center",
+                      justifyContent: "flex-end",
                     }}
                   >
-                    <Typography variant="h5">
-                      {"Q)" +
-                        authState.decks[currentDeckId].cards[currentCardId]
-                          .question}
+                    <Typography variant="h8" style={{ paddingRight: "4px" }}>
+                      {review
+                        ? currentCardId ===
+                          authState.decks[currentDeckId].cards.length - 1
+                          ? "Final Results In"
+                          : "Next Question In"
+                        : "Time Remaining"}
                     </Typography>
-                    {correct === "" ? (
-                      <>
-                        <TextField
-                          autoFocus
-                          margin="dense"
-                          id="answer"
-                          label="Answer"
-                          value={answer}
-                          onChange={(e) => setAnswer(e.target.value)}
-                          onKeyDown={(ev) => {
-                            if (ev.key === "Enter") {
-                              ev.preventDefault();
-                              checkAndAddResponse();
-                              setReview(true);
-                            }
-                          }}
-                          type="email"
-                          style={{ width: "300px" }}
-                          fullWidth
-                          variant="outlined"
-                        />
-                        <Button
-                          style={{ width: "200px" }}
-                          variant="contained"
-                          onClick={() => {
-                            checkAndAddResponse();
-                            setReview(true);
-                          }}
-                        >
-                          Submit
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        {correct === "Correct" ? (
+                  </div>
+                  <CountdownCircleTimer
+                    isPlaying={true}
+                    size={40}
+                    key={currentCardId + review.toString()}
+                    strokeWidth={4}
+                    colors="#7E2E84"
+                    duration={review ? reviewTime : ansTime}
+                    initialRemainingTime={review ? reviewTime : ansTime}
+                    onComplete={(totalElapsedTime) => {
+                      if (review) {
+                        setReview(false);
+                        setCorrect("");
+                        setAnswer("");
+                        if (
+                          currentCardId <
+                          authState.decks[currentDeckId].cards.length - 1
+                        )
+                          setCurrentCardId(currentCardId + 1);
+                        else {
+                          setQuizOpen(false);
+                          setResultOpen(true);
+                          submit();
+                        }
+                      } else {
+                        checkAndAddResponse();
+                        setReview(true);
+                      }
+                    }}
+                  >
+                    {({ elapsedTime, color }) => (
+                      <span style={{ color }}>
+                        {renderTime(
+                          "seconds",
+                          getTimeSeconds(
+                            review ? reviewTime : ansTime,
+                            elapsedTime
+                          )
+                        )}
+                      </span>
+                    )}
+                  </CountdownCircleTimer>
+                </div>
+                <div className="row" style={{ alignItems: "center" }}>
+                  <div className="col-12">
+                    <DialogContent
+                      style={{
+                        height: "50vh",
+                        maxHeight: "80vh",
+                        textAlign: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          height: "100%",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Typography variant="h5">
+                          {"Q)" +
+                            authState.decks[currentDeckId].cards[currentCardId]
+                              .question}
+                        </Typography>
+                        {correct === "" ? (
                           <>
-                            <Typography variant="h6"> Correct! </Typography>
-                            <Typography variant="h6">
-                              {" "}
-                              A)
-                              {
-                                authState.decks[currentDeckId].cards[
-                                  currentCardId
-                                ].answer
-                              }
-                            </Typography>
+                            <TextField
+                              autoFocus
+                              margin="dense"
+                              id="answer"
+                              label="Answer"
+                              value={answer}
+                              onChange={(e) => setAnswer(e.target.value)}
+                              onKeyDown={(ev) => {
+                                if (ev.key === "Enter") {
+                                  ev.preventDefault();
+                                  checkAndAddResponse();
+                                  setReview(true);
+                                }
+                              }}
+                              type="email"
+                              style={{ width: "300px" }}
+                              fullWidth
+                              variant="outlined"
+                            />
+                            <Button
+                              style={{ width: "200px" }}
+                              variant="contained"
+                              onClick={() => {
+                                checkAndAddResponse();
+                                setReview(true);
+                              }}
+                            >
+                              Submit
+                            </Button>
                           </>
                         ) : (
                           <>
-                            <Typography variant="h6">Wrong!</Typography>
-                            <Typography variant="h6">
-                              {" "}
-                              A)
-                              {
-                                authState.decks[currentDeckId].cards[
-                                  currentCardId
-                                ].answer
-                              }
-                            </Typography>
+                            {correct === "Correct" ? (
+                              <>
+                                <Typography variant="h6"> Correct! </Typography>
+                                <Typography variant="h6">
+                                  {" "}
+                                  A)
+                                  {
+                                    authState.decks[currentDeckId].cards[
+                                      currentCardId
+                                    ].answer
+                                  }
+                                </Typography>
+                              </>
+                            ) : (
+                              <>
+                                <Typography variant="h6">Wrong!</Typography>
+                                <Typography variant="h6">
+                                  {" "}
+                                  A)
+                                  {
+                                    authState.decks[currentDeckId].cards[
+                                      currentCardId
+                                    ].answer
+                                  }
+                                </Typography>
+                              </>
+                            )}
                           </>
                         )}
-                      </>
-                    )}
+                      </div>
+                    </DialogContent>
                   </div>
-                </DialogContent>
-              </div>
-            </div>
+                </div>
+              </>
+            )}
           </div>
         </Dialog>
       )}
