@@ -77,7 +77,7 @@ export const userLoad = (history) => {
         })
         .catch((err) => {
             console.log(err)
-            dispatch(notifyError(err.response.data.err.msg));
+            dispatch(notifyError(err.response.data.errors[0].msg));
           history.push("/login");
         });
     } else {

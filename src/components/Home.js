@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import deckLogo from "../Decks.png"
 import quizHistoryLogo from "../quizHistory.png"
+import friendsLogo from "../Friends.png";
 import { useHistory } from "react-router-dom"
 
 export const Home = () => {
@@ -88,6 +89,43 @@ export const Home = () => {
                       style={{ color: "#363062" }}
                     >
                       Quiz History
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+            </Paper>
+          </div>
+          <div className="col-4" style={{ padding: "20px" }}>
+            <Paper
+              elevation={3}
+              style={{ backgroundColor: "#FCFFE7" }}
+              onClick={() => {
+                history.push("/friends");
+              }}
+            >
+              <Card variant="outlined">
+                <CardActionArea>
+                  <CardContent>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        height: "30vh",
+                      }}
+                    >
+                      <img
+                        style={{ height: "100%" }}
+                        src={friendsLogo}
+                        alt="Friends Logo"
+                      />
+                    </div>
+                    <Typography
+                      variant="h5"
+                      align="center"
+                      style={{ color: "#363062" }}
+                    >
+                      Friends
                     </Typography>
                   </CardContent>
                 </CardActionArea>

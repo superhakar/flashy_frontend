@@ -11,6 +11,8 @@ import {
 const initialState = {
   username: "",
   decks: [],
+  friends: [],
+  requests: [],
   currDeck: {},
   authStatus: "",
   registerStatus: "",
@@ -31,6 +33,8 @@ export const AuthReducer = (state = initialState, action) => {
         authStatus: "Success",
         username: action.userDetails.name,
         decks: action.userDetails.decks,
+        friends: action.userDetails.friends,
+        requests: action.userDetails.requests
       };
     case LOGIN_FAILURE:
     case LOAD_USER_FAILURE:
