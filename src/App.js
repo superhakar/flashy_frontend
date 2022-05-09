@@ -19,6 +19,7 @@ import { useHistory } from "react-router-dom";
 import { Cards } from "./components/Cards";
 import { QuizHistory } from "./components/QuizHistory";
 import { Friends } from "./components/Friends";
+import { FriendDeck } from "./components/FriendDeck";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
             <ProtectedRoute exact path="/home" component={Home} />
             <ProtectedRoute exact path="/decks" component={Decks} />
             <ProtectedRoute exact path="/friends" component={Friends} />
+            <ProtectedRoute exact path="/friendsDeck/:id" component={FriendDeck} />
             <ProtectedRoute exact path="/quizHistory" component={QuizHistory} />
             <ProtectedRoute exact path="/cards/:id" component={Cards} />
             <ProtectedRoute

@@ -108,6 +108,9 @@ export const Friends = () => {
     pagination: false,
     selectableRowsHeader: false,
     selectableRowsHideCheckboxes: true,
+    onRowClick: (rowData, rowState) => {
+      history.push("/friendsDeck/" + rowState.dataIndex);
+    },
   };
 
   const options_requests = {

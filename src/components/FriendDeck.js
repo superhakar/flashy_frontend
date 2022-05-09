@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import {
   Card,
@@ -9,19 +9,14 @@ import {
 } from "@mui/material";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContentText from "@mui/material/DialogContentText";
-import plusLogo from "../Plus.png";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import Button from "@mui/material/Button";
-import { MultiSelect } from "react-multi-select-component";
 import { notifySuccess, notifyError } from "../actionCreators/NotifyActions";
 import axios from "../common/AxiosConfig";
 import { useDispatch } from "react-redux";
 import { userLoad } from "../services/AuthServices";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Slide from "@mui/material/Slide";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -29,9 +24,9 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import { Leaderboard } from "./Leaderboard";
 import LeaderboardIcon from "@mui/icons-material/Leaderboard";
+import { Leaderboard } from "./Leaderboard";
+
 
 
 const readTime = 15;
@@ -50,24 +45,13 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export const Decks = () => {
-  const INITIAL_OPTIONS = [
-    { label: "SPE", value: "spe" },
-    { label: "HCAD", value: "hcad" },
-    { label: "ML", value: "ml" },
-    { label: "Placement", value: "placement" },
-    { label: "OS", value: "os" },
-  ];
+export const FriendDeck = () => {
   let history = useHistory();
   const authState = useSelector((state) => state.AuthReducer);
   const dispatch = useDispatch();
-  const [open, setOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
-  const [selectedTags, setSelectedTags] = useState([]);
-  const [name, setName] = useState("");
   const [readOpen, setReadOpen] = useState(false);
-  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const [resultOpen, setResultOpen] = useState(false);
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const [quizOpen, setQuizOpen] = useState(false);
   const [readQuizOpen, setReadQuizOpen] = useState(false);
   const [currentCardId, setCurrentCardId] = useState(0);
@@ -77,68 +61,9 @@ export const Decks = () => {
   const [review, setReview] = useState(false);
   const [responses, setResponses] = useState([]);
   const [currentDeckId, setCurrentDeckId] = useState(-1);
-  const [deleteConfirm, setDeleteConfirm] = useState("");
 
-  const handleSubmit = () => {
-    console.log("Add Deck!!!!!!");
-    let tags = selectedTags.map((t) => t.label);
-    console.log(name, tags);
+  let {id} = useParams();
 
-    setOpen(false);
-    axios
-      .post("/decks/addDeck", { name, tags })
-      .then((res) => {
-        console.log(res);
-        dispatch(notifySuccess("Created Deck Successfully"));
-        dispatch(userLoad());
-      })
-      .catch((err) => {
-        dispatch(notifyError(err.response.data.errors[0].msg));
-      });
-    setName("");
-    setSelectedTags([]);
-  };
-
-  const handleEditSubmit = () => {
-    console.log("Edit Deck!!!!!!");
-    let tags = selectedTags.map((t) => t.label);
-    console.log(name, tags);
-
-    setEditOpen(false);
-    axios
-      .post("/decks/editDeck", {
-        deckId: authState.decks[currentDeckId]._id,
-        name,
-        tags,
-      })
-      .then((res) => {
-        console.log(res);
-        dispatch(notifySuccess("Edited Deck Successfully"));
-        dispatch(userLoad());
-      })
-      .catch((err) => {
-        dispatch(notifyError(err.response.data.errors[0].msg));
-      });
-    setName("");
-    setSelectedTags([]);
-  };
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-  const handleEditClose = () => {
-    setEditOpen(false);
-  };
-  const handleDeleteClose = () => {
-    setDeleteConfirm(false);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-    setEditOpen(false);
-    setReview(false);
-    setCorrect("");
-  };
   const handleCloseRead = () => {
     setReadOpen(false);
     setReview(false);
@@ -164,48 +89,31 @@ export const Decks = () => {
 
   const checkAndAddResponse = () => {
     let cor =
-      authState.decks[currentDeckId].cards[
+      authState.friends[id].decks[currentDeckId].cards[
         currentCardId
       ].answer.toUpperCase() === answer.toUpperCase();
     if (cor) setScore(score + 1);
     setResponses([
       ...responses,
       {
-        cardId: authState.decks[currentDeckId].cards[currentCardId]._id,
+        cardId:
+          authState.friends[id].decks[currentDeckId].cards[currentCardId]._id,
         answer: answer,
         correct: cor,
       },
     ]);
     cor ? setCorrect("Correct") : setCorrect("Wrong");
   };
-  const handleDelete = () => {
-    console.log("Delete Deck!!!!!!");
-
-    setDeleteConfirm(false);
-    axios
-      .post("/decks/deleteDeck", {
-        deckId: authState.decks[currentDeckId]._id,
-      })
-      .then((res) => {
-        console.log(res);
-        dispatch(notifySuccess("Deleted Deck Successfully"));
-        dispatch(userLoad());
-      })
-      .catch((err) => {
-        dispatch(notifyError(err.response.data.errors[0].msg));
-      });
-    setCurrentDeckId(-1);
-  };
 
   const submit = () => {
     console.log({
-      deckId: authState.decks[currentDeckId]._id,
+      deckId: authState.friends[id].decks[currentDeckId]._id,
       score: score,
       responses: responses,
     });
     axios
       .post("/quiz/addQuiz", {
-        deckId: authState.decks[currentDeckId]._id,
+        deckId: authState.friends[id].decks[currentDeckId]._id,
         score: score,
         responses: responses,
       })
@@ -225,285 +133,123 @@ export const Decks = () => {
           <ArrowBackIcon style={{ color: "#362062", fontSize: "8vh" }} />
         </Button>
         <div className="row" style={{ width: "80%", marginLeft: "10%" }}>
-          {authState.decks.map((d, ind) => {
-            return (
-              <div className="col-4" key={d._id} style={{ padding: "20px" }}>
-                <Paper elevation={3} style={{ backgroundColor: "#FCFFE7" }}>
-                  <Card variant="outlined">
-                    <CardContent
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "space-evenly",
-                        height: "30vh",
-                        padding: "2px 5px",
-                      }}
-                    >
-                      <div style={{color:"#363062", display:"flex", width:"100%", cursor:"pointer"}}>
-                        <LeaderboardIcon
-                          fontSize="small"
-                          onClick={() => {
-                            setCurrentDeckId(ind);
-                            setLeaderboardOpen(true);
-                          }}
-                        />
-                      </div>
-                      <Typography variant="h4" align="center">
-                        {d.name}
-                      </Typography>
-                      <Typography align="center">
-                        {d.tags.map((t) => {
-                          return (
-                            <span>
-                              <LocalOfferIcon style={{ color: "#363062" }} />
-                              {" " + t + " "}
-                            </span>
-                          );
-                        })}
-                      </Typography>
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                        }}
-                      >
-                        <div
-                          style={{
-                            padding: "5px",
-                            display: "flex",
-                            flexDirection: "row",
-                          }}
-                        >
-                          <Button
-                            variant="contained"
-                            size="small"
-                            style={{ backgroundColor: "#673ab7" }}
-                            onClick={() => history.push("/cards/" + ind)}
-                          >
-                            View Cards
-                          </Button>
-                          <Button
-                            size="small"
-                            variant="contained"
-                            style={{ backgroundColor: "#673ab7" }}
-                            onClick={() => {
-                              setCurrentDeckId(ind);
-                              setCurrentCardId(-1);
-                              setName(authState.decks[ind].name);
-                              let tags = authState.decks[ind].tags.map((t) => {
-                                return { label: t, value: t };
-                              });
-                              setSelectedTags(tags);
-                              setEditOpen(true);
-                            }}
-                          >
-                            Edit Deck
-                          </Button>
-                          <Button
-                            size="small"
-                            variant="contained"
-                            style={{ backgroundColor: "#b81828" }}
-                            onClick={() => {
-                              setCurrentDeckId(ind);
-                              setDeleteConfirm(true);
-                            }}
-                          >
-                            <DeleteOutlineIcon />
-                          </Button>
-                        </div>
-                        <div
-                          style={{
-                            padding: "5px",
-                            display: "flex",
-                            flexDirection: "row",
-                          }}
-                        >
-                          <Button
-                            variant="contained"
-                            style={{ backgroundColor: "#673ab7" }}
-                            size="small"
-                            onClick={() => {
-                              setReadOpen(true);
-                              setCurrentDeckId(ind);
-                              setCurrentCardId(0);
-                            }}
-                          >
-                            Read
-                          </Button>
-                          <Button
-                            variant="contained"
-                            style={{ backgroundColor: "#673ab7" }}
-                            size="small"
-                            onClick={(e) => {
-                              setReadQuizOpen(true);
-                              setCurrentDeckId(ind);
-                              setCurrentCardId(0);
-                              e.currentTarget.blur();
-                            }}
-                          >
-                            Read & Quiz
-                          </Button>
-                          <Button
-                            size="small"
-                            style={{ backgroundColor: "#673ab7" }}
-                            variant="contained"
-                            onClick={(e) => {
-                              setQuizOpen(true);
-                              setCurrentDeckId(ind);
-                              setCurrentCardId(0);
-                              e.currentTarget.blur();
-                            }}
-                          >
-                            Quiz
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Paper>
-              </div>
-            );
-          })}
-          <div className="col-4" style={{ padding: "20px" }}>
-            <Paper
-              elevation={3}
-              onClick={handleClickOpen}
-              style={{ backgroundColor: "#FCFFE7" }}
-            >
-              <Card variant="outlined">
-                <CardActionArea>
-                  <CardContent
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      height: "30vh",
-                    }}
+          {authState.friends[id] &&
+            (authState.friends[id].decks.length === 0 ? (
+              <h3>No decks</h3>
+            ) : (
+              authState.friends[id].decks.map((d, ind) => {
+                return (
+                  <div
+                    className="col-4"
+                    key={d._id}
+                    style={{ padding: "20px" }}
                   >
-                    <img
-                      style={{ height: "50%" }}
-                      src={plusLogo}
-                      alt="Plus Logo"
-                    />
-                    <Typography variant="h5" align="center">
-                      ADD
-                    </Typography>
-                  </CardContent>
-                </CardActionArea>
-              </Card>
-            </Paper>
-          </div>
+                    <Paper elevation={3} style={{ backgroundColor: "#FCFFE7" }}>
+                      <Card variant="outlined">
+                        <CardContent
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "space-evenly",
+                            height: "30vh",
+                            padding: "2px 5px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              color: "#363062",
+                              display: "flex",
+                              width: "100%",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <LeaderboardIcon
+                              fontSize="small"
+                              onClick={() => {
+                                setCurrentDeckId(ind);
+                                setLeaderboardOpen(true);
+                              }}
+                            />
+                          </div>
+                          <Typography variant="h4" align="center">
+                            {d.name}
+                          </Typography>
+                          <Typography align="center">
+                            {d.tags.map((t) => {
+                              return (
+                                <span>
+                                  <LocalOfferIcon
+                                    style={{ color: "#363062" }}
+                                  />
+                                  {" " + t + " "}
+                                </span>
+                              );
+                            })}
+                          </Typography>
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                            }}
+                          >
+                            <div
+                              style={{
+                                padding: "5px",
+                                display: "flex",
+                                flexDirection: "row",
+                              }}
+                            >
+                              <Button
+                                variant="contained"
+                                style={{ backgroundColor: "#673ab7" }}
+                                size="small"
+                                onClick={() => {
+                                  setReadOpen(true);
+                                  setCurrentDeckId(ind);
+                                  setCurrentCardId(0);
+                                }}
+                              >
+                                Read
+                              </Button>
+                              <Button
+                                variant="contained"
+                                style={{ backgroundColor: "#673ab7" }}
+                                size="small"
+                                onClick={(e) => {
+                                  setReadQuizOpen(true);
+                                  setCurrentDeckId(ind);
+                                  setCurrentCardId(0);
+                                  e.currentTarget.blur();
+                                }}
+                              >
+                                Read & Quiz
+                              </Button>
+                              <Button
+                                size="small"
+                                style={{ backgroundColor: "#673ab7" }}
+                                variant="contained"
+                                onClick={(e) => {
+                                  setQuizOpen(true);
+                                  setCurrentDeckId(ind);
+                                  setCurrentCardId(0);
+                                  e.currentTarget.blur();
+                                }}
+                              >
+                                Quiz
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Paper>
+                  </div>
+                );
+              })
+            ))}
         </div>
       </div>
-      <Dialog
-        open={deleteConfirm}
-        onClose={handleDeleteClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-          {"Are you sure you want to delete ?"}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Deleted Deck Cannot be restored
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDeleteClose}>Disagree</Button>
-          <Button onClick={handleDelete} autoFocus>
-            Agree
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        style={{
-          color: "#FCFFE7",
-        }}
-        fullWidth
-        maxWidth="xs"
-      >
-        <DialogTitle>Create Deck</DialogTitle>
-        <DialogContent
-          style={{
-            height: "50vh",
-            maxHeight: "80vh",
-          }}
-        >
-          <TextField
-            autoFocus
-            margin="dense"
-            id="name"
-            label="Deck Name"
-            fullWidth
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            variant="standard"
-          />
-          <Typography style={{ marginTop: "10px", marginBottom: "10px" }}>
-            Select Tags:
-          </Typography>
-          <MultiSelect
-            options={INITIAL_OPTIONS}
-            value={selectedTags}
-            onChange={setSelectedTags}
-            labelledBy="Select Tags"
-            isCreatable={true}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleSubmit}>Create</Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog
-        open={editOpen}
-        onClose={handleEditClose}
-        style={{
-          color: "#FCFFE7",
-        }}
-        fullWidth
-        maxWidth="xs"
-      >
-        <DialogTitle>Edit Deck</DialogTitle>
-        <DialogContent
-          style={{
-            height: "50vh",
-            maxHeight: "80vh",
-          }}
-        >
-          <TextField
-            autoFocus
-            margin="dense"
-            id="name"
-            label="Deck Name"
-            fullWidth
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            variant="standard"
-          />
-          <Typography style={{ marginTop: "10px", marginBottom: "10px" }}>
-            Select Tags:
-          </Typography>
-          <MultiSelect
-            options={INITIAL_OPTIONS}
-            value={selectedTags}
-            onChange={setSelectedTags}
-            labelledBy="Select Tags"
-            isCreatable={true}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleEditSubmit}>Edit</Button>
-        </DialogActions>
-      </Dialog>
       {/* Read without Timer */}
       {currentDeckId !== -1 && currentCardId !== -1 && (
         <Dialog
@@ -520,7 +266,7 @@ export const Decks = () => {
             className="row"
             style={{ alignItems: "center", backgroundColor: "#f2e6c4" }}
           >
-            {authState.decks[currentDeckId].cards.length === 0 ? (
+            {authState.friends[id].decks[currentDeckId].cards.length === 0 ? (
               <>
                 <Typography variant="h2">No cards in this Deck</Typography>
               </>
@@ -558,8 +304,9 @@ export const Decks = () => {
                     >
                       <Typography variant="h5">
                         {
-                          authState.decks[currentDeckId].cards[currentCardId]
-                            .content
+                          authState.friends[id].decks[currentDeckId].cards[
+                            currentCardId
+                          ].content
                         }
                       </Typography>
                     </div>
@@ -571,13 +318,15 @@ export const Decks = () => {
                   onClick={() => {
                     if (
                       currentCardId <
-                      authState.decks[currentDeckId].cards.length - 1
+                      authState.friends[id].decks[currentDeckId].cards.length -
+                        1
                     )
                       setCurrentCardId(currentCardId + 1);
                   }}
                 >
                   {currentCardId !==
-                    authState.decks[currentDeckId].cards.length - 1 && (
+                    authState.friends[id].decks[currentDeckId].cards.length -
+                      1 && (
                     <ChevronRightIcon
                       style={{ fontSize: "4em" }}
                     ></ChevronRightIcon>
@@ -601,7 +350,7 @@ export const Decks = () => {
           maxWidth="md"
         >
           <div style={{ backgroundColor: "#f2e6c4" }}>
-            {authState.decks[currentDeckId].cards.length === 0 ? (
+            {authState.friends[id].decks[currentDeckId].cards.length === 0 ? (
               <>
                 <Typography variant="h2">No cards in this Deck</Typography>
               </>
@@ -631,7 +380,9 @@ export const Decks = () => {
                     onComplete={(totalElapsedTime) => {
                       if (
                         currentCardId <
-                        authState.decks[currentDeckId].cards.length - 1
+                        authState.friends[id].decks[currentDeckId].cards
+                          .length -
+                          1
                       )
                         setCurrentCardId(currentCardId + 1);
                       else {
@@ -675,8 +426,9 @@ export const Decks = () => {
                       >
                         <Typography variant="h5">
                           {
-                            authState.decks[currentDeckId].cards[currentCardId]
-                              .content
+                            authState.friends[id].decks[currentDeckId].cards[
+                              currentCardId
+                            ].content
                           }
                         </Typography>
                       </div>
@@ -688,7 +440,9 @@ export const Decks = () => {
                     onClick={() => {
                       if (
                         currentCardId <
-                        authState.decks[currentDeckId].cards.length - 1
+                        authState.friends[id].decks[currentDeckId].cards
+                          .length -
+                          1
                       )
                         setCurrentCardId(currentCardId + 1);
                       else {
@@ -734,7 +488,7 @@ export const Decks = () => {
                 : { backgroundColor: "#f2e6c4", paddingTop: "10px" }
             }
           >
-            {authState.decks[currentDeckId].cards.length === 0 ? (
+            {authState.friends[id].decks[currentDeckId].cards.length === 0 ? (
               <>
                 <Typography variant="h2">No cards in this Deck</Typography>
               </>
@@ -752,7 +506,9 @@ export const Decks = () => {
                     <Typography variant="h8" style={{ paddingRight: "4px" }}>
                       {review
                         ? currentCardId ===
-                          authState.decks[currentDeckId].cards.length - 1
+                          authState.friends[id].decks[currentDeckId].cards
+                            .length -
+                            1
                           ? "Final Results In"
                           : "Next Question In"
                         : "Time Remaining"}
@@ -773,7 +529,9 @@ export const Decks = () => {
                         setAnswer("");
                         if (
                           currentCardId <
-                          authState.decks[currentDeckId].cards.length - 1
+                          authState.friends[id].decks[currentDeckId].cards
+                            .length -
+                            1
                         )
                           setCurrentCardId(currentCardId + 1);
                         else {
@@ -821,8 +579,9 @@ export const Decks = () => {
                       >
                         <Typography variant="h5">
                           {"Q)" +
-                            authState.decks[currentDeckId].cards[currentCardId]
-                              .question}
+                            authState.friends[id].decks[currentDeckId].cards[
+                              currentCardId
+                            ].question}
                         </Typography>
                         {correct === "" ? (
                           <>
@@ -865,9 +624,8 @@ export const Decks = () => {
                                   {" "}
                                   A)
                                   {
-                                    authState.decks[currentDeckId].cards[
-                                      currentCardId
-                                    ].answer
+                                    authState.friends[id].decks[currentDeckId]
+                                      .cards[currentCardId].answer
                                   }
                                 </Typography>
                               </>
@@ -878,9 +636,8 @@ export const Decks = () => {
                                   {" "}
                                   A)
                                   {
-                                    authState.decks[currentDeckId].cards[
-                                      currentCardId
-                                    ].answer
+                                    authState.friends[id].decks[currentDeckId]
+                                      .cards[currentCardId].answer
                                   }
                                 </Typography>
                               </>
@@ -937,7 +694,7 @@ export const Decks = () => {
                       size={80}
                       value={
                         (score * 100) /
-                        authState.decks[currentDeckId].cards.length
+                        authState.friends[id].decks[currentDeckId].cards.length
                       }
                     />
                     <Box
@@ -959,12 +716,15 @@ export const Decks = () => {
                       >
                         {score +
                           "/" +
-                          authState.decks[currentDeckId].cards.length}
+                          authState.friends[id].decks[currentDeckId].cards
+                            .length}
                       </Typography>
                     </Box>
                   </Box>
                   <Typography variant="h4">
-                    {score > authState.decks[currentDeckId].cards.length * 0.8
+                    {score >
+                    authState.friends[id].decks[currentDeckId].cards.length *
+                      0.8
                       ? "Awesome! Keep It Up!"
                       : "You Can Do Better!!"}
                   </Typography>
@@ -977,7 +737,11 @@ export const Decks = () => {
       <Leaderboard
         open={leaderboardOpen}
         set={setLeaderboardOpen}
-        id={currentDeckId === -1 ? -1 : authState.decks[currentDeckId]._id}
+        id={
+          currentDeckId === -1
+            ? -1
+            : authState.friends[id].decks[currentDeckId]._id
+        }
       ></Leaderboard>
     </>
   );

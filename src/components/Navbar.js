@@ -64,6 +64,12 @@ export const Navbar = () => {
                     Quiz History
                   </Button>
                   <Button
+                    style={{ color: "#E9D5DA" }}
+                    onClick={() => goto("/friends")}
+                  >
+                    Friends
+                  </Button>
+                  <Button
                     id="basic-button"
                     aria-controls={open ? "basic-menu" : undefined}
                     aria-haspopup="true"
