@@ -61,6 +61,8 @@ export const FriendDeck = () => {
   const [review, setReview] = useState(false);
   const [responses, setResponses] = useState([]);
   const [currentDeckId, setCurrentDeckId] = useState(-1);
+  const [leaderboard, setLeaderboard] = useState([]);
+
 
   let {id} = useParams();
 
@@ -85,6 +87,26 @@ export const FriendDeck = () => {
     setCorrect("");
     setScore(0);
     setResponses([]);
+  };
+
+  const getLeaderboard = (ind) => {
+    try {
+      axios
+        .get(
+          "/quiz/leaderboard/" + (ind === -1
+            ? -1
+            : authState.friends[id].decks[ind]._id
+        ))
+        .then((res) => {
+          setLeaderboard(res.data.leaderboard);
+          console.log(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const checkAndAddResponse = () => {
@@ -160,6 +182,7 @@ export const FriendDeck = () => {
                             style={{
                               color: "#363062",
                               display: "flex",
+                              justifyContent: "flex-end",
                               width: "100%",
                               cursor: "pointer",
                             }}
@@ -168,6 +191,7 @@ export const FriendDeck = () => {
                               fontSize="small"
                               onClick={() => {
                                 setCurrentDeckId(ind);
+                                getLeaderboard(ind);
                                 setLeaderboardOpen(true);
                               }}
                             />
@@ -737,6 +761,7 @@ export const FriendDeck = () => {
       <Leaderboard
         open={leaderboardOpen}
         set={setLeaderboardOpen}
+        leaderboard={leaderboard}
         id={
           currentDeckId === -1
             ? -1

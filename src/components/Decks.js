@@ -33,7 +33,6 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { Leaderboard } from "./Leaderboard";
 import LeaderboardIcon from "@mui/icons-material/Leaderboard";
 
-
 const readTime = 15;
 const ansTime = 10;
 const reviewTime = 2;
@@ -78,6 +77,7 @@ export const Decks = () => {
   const [responses, setResponses] = useState([]);
   const [currentDeckId, setCurrentDeckId] = useState(-1);
   const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [leaderboard, setLeaderboard] = useState([]);
 
   const handleSubmit = () => {
     console.log("Add Deck!!!!!!");
@@ -97,6 +97,22 @@ export const Decks = () => {
       });
     setName("");
     setSelectedTags([]);
+  };
+
+  const getLeaderboard = (ind) => {
+    try {
+      axios
+        .get("/quiz/leaderboard/" + ind === -1 ? -1 : authState.decks[ind]._id)
+        .then((res) => {
+          setLeaderboard(res.data.leaderboard);
+          console.log(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleEditSubmit = () => {
@@ -240,11 +256,20 @@ export const Decks = () => {
                         padding: "2px 5px",
                       }}
                     >
-                      <div style={{color:"#363062", display:"flex", width:"100%", cursor:"pointer"}}>
+                      <div
+                        style={{
+                          color: "#363062",
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          width: "100%",
+                          cursor: "pointer",
+                        }}
+                      >
                         <LeaderboardIcon
                           fontSize="small"
                           onClick={() => {
                             setCurrentDeckId(ind);
+                            getLeaderboard(ind);
                             setLeaderboardOpen(true);
                           }}
                         />
@@ -978,6 +1003,7 @@ export const Decks = () => {
         open={leaderboardOpen}
         set={setLeaderboardOpen}
         id={currentDeckId === -1 ? -1 : authState.decks[currentDeckId]._id}
+        leaderboard={leaderboard}
       ></Leaderboard>
     </>
   );

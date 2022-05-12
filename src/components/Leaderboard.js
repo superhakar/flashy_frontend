@@ -7,20 +7,17 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 
 export const Leaderboard = (props) => {
-  const [leaderboard, setLeaderboard] = useState([]);
+  
   const handleClose = () =>{
       props.set(false);
   }
-  useEffect(() => {
-      console.log(props.open)
-    if(props.open)
-    axios.get("/leaderboard/"+props.id).then((res)=>{
-        setLeaderboard(res.data)
-    })
-    .catch((err)=>{
-        console.log(err);
-    })
-  });
+
+  const [leaderboard,setLeaderboard] = useState([])
+
+  useEffect(()=>{
+    setLeaderboard(props.leaderboard)
+  },[props.leaderboard])
+
   return (
     <Dialog
       open={props.open}
@@ -29,9 +26,7 @@ export const Leaderboard = (props) => {
       aria-describedby="alert-dialog-description"
     >
       <DialogTitle id="alert-dialog-title">
-        <span style={{fontSize:"28px"}}>
-          Leaderboard
-        </span>{" "}
+        <span style={{ fontSize: "28px" }}>Leaderboard</span>{" "}
         <LeaderboardIcon
           style={{ color: "#363062", marginTop: "-14px" }}
           fontSize="large"
@@ -41,10 +36,13 @@ export const Leaderboard = (props) => {
         {leaderboard.length === 0 ? (
           <h3>No attempts made for the deck</h3>
         ) : (
+          // console.log(leaderboard)
           leaderboard.map((l, i) => {
-            <Typography variant="h5">
-              {i + 1}. {" " + l.name + " " + l.score}
-            </Typography>;
+            return (
+              <Typography variant="h5">
+                {i + 1}. {" " + l.name + " - " + Math.round(l.avgScore*100)/100}
+              </Typography>
+            );
           })
         )}
       </DialogContent>
