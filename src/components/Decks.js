@@ -102,7 +102,7 @@ export const Decks = () => {
   const getLeaderboard = (ind) => {
     try {
       axios
-        .get("/quiz/leaderboard/" + ind === -1 ? -1 : authState.decks[ind]._id)
+        .get("/quiz/leaderboard/" +( ind === -1 ? -1 : authState.decks[ind]._id))
         .then((res) => {
           setLeaderboard(res.data.leaderboard);
           console.log(res.data);
